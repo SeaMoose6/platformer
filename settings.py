@@ -14,7 +14,9 @@ GREEN = (0, 255, 0)
 ORANGE = (255, 77, 0)
 BLOCK_COLOR = (252, 53, 3)
 
-
+WIN_WIDTH = 800
+WIN_HEIGHT = 600
+TILE_SIZE = 50
 
 #FONT = pygame.font.Font("assets/unifont.ttf", 25)
 #BIG_FONT = pygame.font.Font("assets/unifont.ttf", 150)
