@@ -1,31 +1,34 @@
 import pygame as pg
 import sprites
+from sprites import Player
 from settings import *
 
 pg.init()
 
+bg_image = pg.image.load("assets/centaur_bridge.png")
+bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
+
 # Set Base Screen
-screen = pg.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-pg.display.set_caption("Card Game")
+screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+pg.display.set_caption("Gunner Game")
 
 playing = True
 
-#bg_image = pg.image.load("assets/deck_of_cards - Copy.png")
+hero = sprites.SpriteSheet("assets/xeonsheet.bmp")
+villain = sprites.SpriteSheet("assets/xeonsheetsupah_0.bmp")
 
-card = sprites.SpriteSheet("assets/deck_of_cards - Copy.png")
-hero = sprites.SpriteSheet("assets/xeonsheetsupah_0.bmp")
-villain = sprites.SpriteSheet("assets/xeonsheet.bmp")
-x_margin = 11
-y_margin = 2
-x_pad = 22
-y_pad = 4
+player_group = pygame.sprite.Group()
+all_sprites = pygame.sprite.Group()
 
-standing_hero = hero.image_at((425, 85, 416, 70), -1)
-standing_villain = villain.image_at((0, 0, 70, 80), -1)
-ace_hearts = card.image_at((9, 2, 44, 59))
-print(standing_hero)
+#
+# shooting_hero = hero.image_at((535, 160, 100, 80), -1)
+# shooting_villain = villain.image_at((535, 160, 100, 80), -1)
+# standing_hero = hero.image_at((0, 0, 100, 80), -1)
 
-card_list = card.load_grid_images(4, 14, x_margin, x_pad, y_margin, y_pad)
+
+player = Player(hero)
+player_group.add(player)
+all_sprites.add(player)
 
 clock = pg.time.Clock()
 
@@ -36,14 +39,20 @@ while playing:
    for event in pg.event.get():
        if event.type == pg.QUIT:
            playing = False
-       if event.type == pg.KEYDOWN:    # allow for q key to quit the game
+       if event.type == pg.KEYDOWN:
            if event.key == pg.K_q:
                playing == False
 
-   screen.fill(BLUE)
+   screen.blit(bg_image, (0, 0))
 
-   screen.blit(standing_hero, (100, 100))
-   screen.blit(standing_villain, (150, 100))
+   #screen.blit(villain_run[0], (100, 100))
+
+   #screen.blit(standing_hero, (100, 100))
+   #screen.blit(standing_villain, (200, 100))
+
+   #screen.blit(player, (200, 200))
+   player_group.draw(screen)
+   all_sprites.update()
 
    pg.display.flip()
 
