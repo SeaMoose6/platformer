@@ -61,39 +61,17 @@ class SpriteSheet:
 
         return self.images_at(sprite_rects, colorkey)
 
-    class Player(pygame.sprite.Sprite):
-        def __init__(self, image_path):
-            pygame.sprite.Sprite.__init__(self)
-
-            self.image = pygame.image.load(image_path)
-            self.rect = self.image.get_rect()
-            self.rect.center = DISPLAY_WIDTH // 2, DISPLAY_HEIGHT - self.rect.height * 2
-            self.change_x = 0
-
-        def update(self):
-            self.rect.x += self.change_x
-
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_RIGHT]:
-                self.change_x = 5
-            elif keys[pygame.K_LEFT]:
-                self.change_x = -5
-            else:
-                self.change_x = 0
-
-            if self.rect.x < 0:
-                self.change_x = 0
-                self.rect.x = 1
-            elif self.rect.x > DISPLAY_WIDTH - self.rect.width:
-                self.change_x = 0
-                self.rect.x = DISPLAY_WIDTH - self.rect.width - 1
 class Player(pygame.sprite.Sprite):
-    def __init__(self, image):
+    def __init__(self, image, x1, y1, x2, y2):
         pygame.sprite.Sprite.__init__(self)
 
-        self.image = image.image_at((535, 160, 100, 80), -1)
+        self.x1 = x1
+        self.y1 = y1
+        self.x2 = x2
+        self.y2 = y2
+        self.image = image.image_at((self.x1, self.y1, self.x2, self.y2), -1)
         self.rect = self.image.get_rect()
-        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*2
+        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*4.2
         self.change_x = 0
 
     def update(self):
@@ -101,9 +79,9 @@ class Player(pygame.sprite.Sprite):
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
-            self.change_x = 5
+            self.change_x = 3
         elif keys[pygame.K_LEFT]:
-            self.change_x = -5
+            self.change_x = -3
         else:
             self.change_x = 0
 
@@ -113,3 +91,15 @@ class Player(pygame.sprite.Sprite):
         elif self.rect.x > DISPLAY_WIDTH-self.rect.width:
             self.change_x = 0
             self.rect.x = DISPLAY_WIDTH-self.rect.width-1
+
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, image, x, y):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.image = image
+        self.x = x
+        self.y = y
+        self.rect = self.image.get_rect()
+        self.rect.center = self.x, self.y
+        self.change_x = 0
+
