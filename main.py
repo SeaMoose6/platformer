@@ -6,7 +6,7 @@ from settings import *
 pg.init()
 
 #bg_image = pg.image.load("assets/centaur_bridge.png")
-bg_image = pg.image.load("assets/sci_fi_bg1.jpg")
+bg_image = pg.image.load("assets/oie_18154314jgX7zpnN.jpg")
 bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
 # Set Base Screen
@@ -43,6 +43,8 @@ all_sprites.add(big_platform)
 all_sprites.add(platform_one)
 all_sprites.add(platform_two)
 
+layout = sprites.Level()
+
 clock = pg.time.Clock()
 
 while playing:
@@ -57,10 +59,12 @@ while playing:
                playing == False
 
    screen.blit(bg_image, (0, 0))
-
+   layout.update(screen)
    player_group.draw(screen)
-   platform_group.draw(screen)
+   #platform_group.draw(screen)
    all_sprites.update()
+
+
 
    pg.display.flip()
 

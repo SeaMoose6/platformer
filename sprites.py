@@ -1,6 +1,6 @@
 from settings import *
 
-import pygame
+import pygame as pg
 
 class SpriteSheet:
 
@@ -71,7 +71,7 @@ class Player(pygame.sprite.Sprite):
         self.y2 = y2
         self.image = image.image_at((self.x1, self.y1, self.x2, self.y2), -1)
         self.rect = self.image.get_rect()
-        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*4.2
+        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*1.05
         self.change_x = 0
 
     def update(self):
@@ -102,4 +102,49 @@ class Platform(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.x, self.y
         self.change_x = 0
+class Level:
+    def __init__(self):
+        brick_block = pg.image.load("assets/tile116.png")
+        brick_block = pg.transform.scale(brick_block, (TILE_SIZE, TILE_SIZE))
+        bottom_block = pg.image.load("assets/tile094.png")
+        bottom_block = pg.transform.scale(bottom_block, (TILE_SIZE, TILE_SIZE))
+        wall_block = pg.image.load("assets/tile095.png")
+        wall_block = pg.transform.scale(wall_block, (TILE_SIZE, TILE_SIZE))
+        door_block = pg.image.load("assets/door_red.png")
+        door_block = pg.transform.scale(door_block, (TILE_SIZE*2, TILE_SIZE*2))
+        self.tile_list = []
 
+        for i, row in enumerate(LAYOUT):
+            for j, col in enumerate(row):
+                x_val = j * TILE_SIZE
+                y_val = i * TILE_SIZE
+
+                if col == "1":
+                    image_rect = brick_block.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (brick_block, image_rect)
+                    self.tile_list.append(tile)
+                if col == "2":
+                    image_rect = bottom_block.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (bottom_block, image_rect)
+                    self.tile_list.append(tile)
+                if col == "3":
+                    image_rect = wall_block.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (wall_block, image_rect)
+                    self.tile_list.append(tile)
+                if col == "4":
+                    image_rect = door_block.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (door_block, image_rect)
+                    self.tile_list.append(tile)
+
+    def update(self, display):
+        self.display = display
+        for tile in self.tile_list:
+            self.display.blit(tile[0], tile[1])
