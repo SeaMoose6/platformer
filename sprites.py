@@ -62,19 +62,23 @@ class SpriteSheet:
         return self.images_at(sprite_rects, colorkey)
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, image, x1, y1, x2, y2):
+    def __init__(self, sheet):
         pygame.sprite.Sprite.__init__(self)
-
-        self.x1 = x1
-        self.y1 = y1
-        self.x2 = x2
-        self.y2 = y2
-        self.image = image.image_at((self.x1, self.y1, self.x2, self.y2), -1)
+        self.sheet = sheet
+        standing_right = self.sheet.image_at((5, 5, 70, 75), -1)
+        shooting_right = self.sheet.image_at((535, 160, 100, 80), -1)
+        walking_right = [self.sheet.image_at((18, 172, 68, 68), -1), self.sheet.image_at((101, 173, 68, 68), -1),
+                         self.sheet.image_at((177, 173, 68, 68), -1), self.sheet.image_at((252, 173, 68, 68), -1),
+                         self.sheet.image_at((0, 0, 70, 80), -1)]
+        self.image = walking_right[3]
+        self.frame = 0
+        self.frame_rate = 50
+        self.previous_update = pygame.time.get_ticks()
         self.rect = self.image.get_rect()
-        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*1.05
+        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*1.15
         self.change_x = 0
 
-    def update(self):
+    def update(self, display):
         self.rect.x += self.change_x
 
         keys = pygame.key.get_pressed()
@@ -91,6 +95,8 @@ class Player(pygame.sprite.Sprite):
         elif self.rect.x > DISPLAY_WIDTH-self.rect.width:
             self.change_x = 0
             self.rect.x = DISPLAY_WIDTH-self.rect.width-1
+        display.blit(self.image, (self.rect.x, self.rect.y))
+        #pygame.draw.rect(display, WHITE, self.rect, 2)
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
@@ -148,3 +154,5 @@ class Level:
         self.display = display
         for tile in self.tile_list:
             self.display.blit(tile[0], tile[1])
+
+
