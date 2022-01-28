@@ -1,3 +1,5 @@
+import pygame
+
 from settings import *
 
 import pygame as pg
@@ -62,39 +64,110 @@ class SpriteSheet:
         return self.images_at(sprite_rects, colorkey)
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, sheet):
+    def __init__(self, sheet, x, y, tile_size, tile_set):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
-        standing_right = self.sheet.image_at((5, 5, 70, 75), -1)
-        shooting_right = self.sheet.image_at((535, 160, 100, 80), -1)
-        walking_right = [self.sheet.image_at((18, 172, 68, 68), -1), self.sheet.image_at((101, 173, 68, 68), -1),
-                         self.sheet.image_at((177, 173, 68, 68), -1), self.sheet.image_at((252, 173, 68, 68), -1),
-                         self.sheet.image_at((0, 0, 70, 80), -1)]
-        self.image = walking_right[3]
+        self.tile_size = tile_size
+        self.tile_set = tile_set
+        self.standing_right = self.sheet.image_at((5, 7, 70, 85), -1)
+        self.standing_left = pg.transform.flip(self.standing_right, True, False)
+        self.shooting_right = self.sheet.image_at((535, 160, 100, 80), -1)
+        self.run_right = [self.sheet.image_at((18, 172, 68, 68), -1), self.sheet.image_at((101, 173, 68, 68), -1),
+                         self.sheet.image_at((177, 173, 68, 68), -1), self.sheet.image_at((252, 173, 68, 68), -1)]
+        self.run_left = [pg.transform.flip(player, True, False) for player in self.run_right]
+        self.image = self.standing_right
         self.frame = 0
         self.frame_rate = 50
         self.previous_update = pygame.time.get_ticks()
+        self.image_delay = 100
+        self.velo_y = 0
         self.rect = self.image.get_rect()
-        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*1.15
-        self.change_x = 0
+        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*0.9
+        self.right = False
+        self.left = False
+        self.jumping = False
+        self.falling = False
 
     def update(self, display):
-        self.rect.x += self.change_x
-
+        self.current = pygame.time.get_ticks()
+        dx = 0
+        dy = 0
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
-            self.change_x = 3
-        elif keys[pygame.K_LEFT]:
-            self.change_x = -3
-        else:
-            self.change_x = 0
+            dx = 3
+            self.right = True
+            self.left = False
+            now = pygame.time.get_ticks()
+            if now - self.previous_update >= self.image_delay:
+                self.previous_update = now
+                if self.frame >= len(self.run_right):
+                    self.frame = 0
+                self.image = self.run_right[self.frame]
+                self.frame = self.frame + 1
 
-        if self.rect.x < 0:
-            self.change_x = 0
-            self.rect.x = 1
-        elif self.rect.x > DISPLAY_WIDTH-self.rect.width:
-            self.change_x = 0
-            self.rect.x = DISPLAY_WIDTH-self.rect.width-1
+        elif keys[pygame.K_LEFT]:
+            dx = -3
+            self.right = False
+            self.left = True
+            now = pygame.time.get_ticks()
+            if now - self.previous_update >= self.image_delay:
+                self.previous_update = now
+                if self.frame >= len(self.run_left):
+                    self.frame = 0
+                self.image = self.run_left[self.frame]
+                self.frame = self.frame + 1
+        else:
+            dx = 0
+            self.frame = 0
+            if self.right:
+                self.image = self.standing_right
+            elif self.left:
+                self.image = self.standing_left
+        self.rect.x += dx
+        self.rect.y += dy
+        if keys[pygame.K_SPACE] and not self.jumping and not self.falling:
+            self.velo_y = -15
+            self.jumping = True
+        if not keys[pygame.K_SPACE]:
+            self.jumping = False
+        self.velo_y += 1
+        if self.velo_y < 0:
+            self.jumping = True
+            self.falling = False
+        else:
+            self.jumping = False
+            self.falling = True
+        if self.velo_y >= 10:
+            self.velo_y = 10
+        dy += self.velo_y
+        for tile in self.tile_set:
+            if tile[1].colliderect(self.image_rect.x + dx,
+                                    self.image_rect.y,
+                                    self.image_rect.width,
+                                    self.image_rect.height):
+                dx = 0
+            if tile[1].colliderect(self.image_rect.x,
+                                    self.image_rect.y + dy,
+                                    self.image_rect.width,
+                                    self.image_rect.height):
+
+                if self.jumping:
+                    dy = tile[1].bottom - self.image_rect.top
+                    self.velo_y = 0
+                    self.falling = True
+                    self.jumping = False
+
+                elif self.falling:
+                    dy = tile[1].top - self.image_rect.bottom
+                    self.velo_y = 0
+                    self.falling = False
+
+        self.image_rect.x += dx
+        self.image_rect.y += dy
+
+
+        if self.image_rect.left <= self.tile_size:
+            self.image_rect.left = self.tile_size
         display.blit(self.image, (self.rect.x, self.rect.y))
         #pygame.draw.rect(display, WHITE, self.rect, 2)
 
@@ -154,5 +227,7 @@ class Level:
         self.display = display
         for tile in self.tile_list:
             self.display.blit(tile[0], tile[1])
+    def get_tiles(self):
+        return self.tile_list
 
 

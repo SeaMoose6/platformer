@@ -26,12 +26,14 @@ all_sprites = pygame.sprite.Group()
 # standing_hero = (0, 0, 70, 80)
 # shooting_hero = (535, 160, 100, 80)
 # shooting_villain = (535, 160, 100, 80)
-player = Player(hero)
+layout = sprites.Level()
+tile_list = layout.get_tiles()
+player = Player(hero, 100, 850, 50, tile_list)
 player_group.add(player)
 all_sprites.add(player)
 
 
-layout = sprites.Level()
+
 
 clock = pg.time.Clock()
 
