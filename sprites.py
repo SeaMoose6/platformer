@@ -69,20 +69,24 @@ class Player(pygame.sprite.Sprite):
         self.sheet = sheet
         self.tile_size = tile_size
         self.tile_set = tile_set
-        self.standing_right = self.sheet.image_at((5, 7, 70, 85), -1)
+        self.standing_right = self.sheet.image_at((15, 7, 50, 72), -1)
         self.standing_left = pg.transform.flip(self.standing_right, True, False)
+        self.jumping_right = self.sheet.image_at((138, 465, 50, 102), -1)
+        self.jumping_left = pg.transform.flip(self.jumping_right, True, False)
+        self.falling_right = self.sheet.image_at((330, 465, 50, 72), -1)
+        self.falling_left = pg.transform.flip(self.falling_right, True, False)
         self.shooting_right = self.sheet.image_at((535, 160, 100, 80), -1)
-        self.run_right = [self.sheet.image_at((18, 172, 68, 68), -1), self.sheet.image_at((101, 173, 68, 68), -1),
-                         self.sheet.image_at((177, 173, 68, 68), -1), self.sheet.image_at((252, 173, 68, 68), -1)]
+        self.run_right = [self.sheet.image_at((23, 172, 51, 68), -1), self.sheet.image_at((106, 173, 51, 68), -1),
+                         self.sheet.image_at((182, 173, 51, 68), -1), self.sheet.image_at((257, 173, 51, 68), -1)]
         self.run_left = [pg.transform.flip(player, True, False) for player in self.run_right]
-        self.image = self.standing_right
+        self.image = self.standing_left
         self.frame = 0
         self.frame_rate = 50
         self.previous_update = pygame.time.get_ticks()
         self.image_delay = 100
         self.velo_y = 0
-        self.rect = self.image.get_rect()
-        self.rect.center = DISPLAY_WIDTH//2, DISPLAY_HEIGHT - self.rect.height*0.9
+        self.image_rect = self.image.get_rect()
+        self.image_rect.center = DISPLAY_WIDTH//3, DISPLAY_HEIGHT - self.image_rect.height*0.5
         self.right = False
         self.left = False
         self.jumping = False
@@ -94,7 +98,7 @@ class Player(pygame.sprite.Sprite):
         dy = 0
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
-            dx = 3
+            dx = 4
             self.right = True
             self.left = False
             now = pygame.time.get_ticks()
@@ -106,7 +110,7 @@ class Player(pygame.sprite.Sprite):
                 self.frame = self.frame + 1
 
         elif keys[pygame.K_LEFT]:
-            dx = -3
+            dx = -4
             self.right = False
             self.left = True
             now = pygame.time.get_ticks()
@@ -123,22 +127,26 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.standing_right
             elif self.left:
                 self.image = self.standing_left
-        self.rect.x += dx
-        self.rect.y += dy
         if keys[pygame.K_SPACE] and not self.jumping and not self.falling:
-            self.velo_y = -15
+            self.velo_y = -10
             self.jumping = True
         if not keys[pygame.K_SPACE]:
             self.jumping = False
-        self.velo_y += 1
+        self.velo_y += 0.3
         if self.velo_y < 0:
             self.jumping = True
             self.falling = False
         else:
             self.jumping = False
             self.falling = True
-        if self.velo_y >= 10:
-            self.velo_y = 10
+        if self.velo_y >= 5:
+            self.velo_y = 5
+            dy = 5
+        if self.jumping and self.right:
+            self.image = self.jumping_right
+        if self.jumping and self.left:
+            self.image = self.jumping_left
+
         dy += self.velo_y
         for tile in self.tile_set:
             if tile[1].colliderect(self.image_rect.x + dx,
@@ -168,8 +176,8 @@ class Player(pygame.sprite.Sprite):
 
         if self.image_rect.left <= self.tile_size:
             self.image_rect.left = self.tile_size
-        display.blit(self.image, (self.rect.x, self.rect.y))
-        #pygame.draw.rect(display, WHITE, self.rect, 2)
+        display.blit(self.image, (self.image_rect.x, self.image_rect.y))
+        pygame.draw.rect(display, WHITE, self.image_rect, 2)
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
@@ -229,5 +237,3 @@ class Level:
             self.display.blit(tile[0], tile[1])
     def get_tiles(self):
         return self.tile_list
-
-
