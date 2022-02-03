@@ -1,6 +1,6 @@
 import pygame as pg
 import sprites
-from sprites import Player, Platform
+from sprites import Player, Platform, Weapons
 from settings import *
 
 pg.init()
@@ -34,6 +34,7 @@ player_group.add(player)
 
 
 
+
 clock = pg.time.Clock()
 
 while playing:
@@ -47,10 +48,18 @@ while playing:
            if event.key == pg.K_q:
                playing == False
 
+           if event.key == pg.K_e:
+               shooting = True
+               x = player.get_info()[0]
+               y = player.get_info()[1]
+               laser = Weapons(hero, x, y, screen)
+
+
    screen.blit(bg_image, (0, 0))
    layout.update(screen)
-
    player.update(screen)
+   laser.update(player.right, player.left, shooting)
+
 
 
 

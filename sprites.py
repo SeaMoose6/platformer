@@ -79,25 +79,26 @@ class Player(pygame.sprite.Sprite):
         self.run_right = [self.sheet.image_at((23, 172, 51, 68), -1), self.sheet.image_at((106, 173, 51, 68), -1),
                          self.sheet.image_at((182, 173, 51, 68), -1), self.sheet.image_at((257, 173, 51, 68), -1)]
         self.run_left = [pg.transform.flip(player, True, False) for player in self.run_right]
-        self.image = self.standing_left
+        self.image = self.standing_right
         self.frame = 0
         self.frame_rate = 50
         self.previous_update = pygame.time.get_ticks()
         self.image_delay = 100
         self.velo_y = 0
         self.image_rect = self.image.get_rect()
-        self.image_rect.center = DISPLAY_WIDTH//3, DISPLAY_HEIGHT - self.image_rect.height*0.5
+        self.image_rect.center = DISPLAY_WIDTH//7, DISPLAY_HEIGHT - self.image_rect.height*0.5
         self.right = False
         self.left = False
         self.jumping = False
         self.falling = False
+        self.shooting = False
 
     def update(self, display):
         self.current = pygame.time.get_ticks()
         dx = 0
         dy = 0
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d]:
             dx = 4
             self.right = True
             self.left = False
@@ -109,7 +110,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.run_right[self.frame]
                 self.frame = self.frame + 1
 
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_a]:
             dx = -4
             self.right = False
             self.left = True
@@ -169,6 +170,8 @@ class Player(pygame.sprite.Sprite):
                     dy = tile[1].top - self.image_rect.bottom
                     self.velo_y = 0
                     self.falling = False
+        if keys[pygame.K_e]:
+            self.shooting = True
 
         self.image_rect.x += dx
         self.image_rect.y += dy
@@ -178,6 +181,33 @@ class Player(pygame.sprite.Sprite):
             self.image_rect.left = self.tile_size
         display.blit(self.image, (self.image_rect.x, self.image_rect.y))
         pygame.draw.rect(display, WHITE, self.image_rect, 2)
+    def get_info(self):
+        return self.image_rect.x, self.image_rect.y
+
+
+class Weapons(pygame.sprite.Sprite):
+    def __init__(self, sheet, x, y, display):
+        self.sheet = sheet
+        self.x = x
+        self.y = y+25
+        self.display = display
+        self.velo = 0
+        self.laser_right = self.sheet.image_at((322, 690, 45, 22), -1)
+        self.laser_left = pg.transform.flip(self.laser_right, True, False)
+        self.image = self.sheet.image_at((322, 690, 45, 22), -1)
+        self.rect = self.image.get_rect()
+
+    def update(self, right, left, shooting):
+        if right == True:
+            self.velo = 2
+            self.image = self.laser_right
+        if left == True:
+            self.velo = -2
+            self.image = self.laser_left
+        if shooting:
+            self.rect.x += self.velo
+            self.display.blit(self.image, (self.x, self.y))
+
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
@@ -200,6 +230,7 @@ class Level:
         door_block = pg.image.load("assets/door_red.png")
         door_block = pg.transform.scale(door_block, (TILE_SIZE*2, TILE_SIZE*2))
         self.tile_list = []
+        self.background_tiles = []
 
         for i, row in enumerate(LAYOUT):
             for j, col in enumerate(row):
@@ -229,11 +260,13 @@ class Level:
                     image_rect.x = x_val
                     image_rect.y = y_val
                     tile = (door_block, image_rect)
-                    self.tile_list.append(tile)
+                    self.background_tiles.append(tile)
 
     def update(self, display):
         self.display = display
         for tile in self.tile_list:
+            self.display.blit(tile[0], tile[1])
+        for tile in self.background_tiles:
             self.display.blit(tile[0], tile[1])
     def get_tiles(self):
         return self.tile_list
