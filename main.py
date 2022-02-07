@@ -20,6 +20,7 @@ villain = sprites.SpriteSheet("assets/xeonsheetsupah_0.bmp")
 
 player_group = pygame.sprite.Group()
 platform_group = pygame.sprite.Group()
+missile_group = pygame.sprite.Group()
 
 
 # standing_hero = (0, 0, 70, 80)
@@ -33,37 +34,51 @@ player_group.add(player)
 
 
 
-
+shooting = False
 
 clock = pg.time.Clock()
 
 while playing:
 
-   clock.tick(FPS)
+    clock.tick(FPS)
 
-   for event in pg.event.get():
-       if event.type == pg.QUIT:
-           playing = False
-       if event.type == pg.KEYDOWN:
-           if event.key == pg.K_q:
-               playing == False
-
-           if event.key == pg.K_e:
-               shooting = True
-               x = player.get_info()[0]
-               y = player.get_info()[1]
-               laser = Weapons(hero, x, y, screen)
-
-
-   screen.blit(bg_image, (0, 0))
-   layout.update(screen)
-   player.update(screen)
-   laser.update(player.right, player.left, shooting)
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            playing = False
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_q:
+                playing == False
+            if event.key == pg.K_e:
+                shooting = True
+                x = player.get_info()[0]
+                y = player.get_info()[1]
+                laser = Weapons(hero, x, y, screen, tile_list)
+                missile_group.add(laser)
+                #laser.update(player.right, player.left)
 
 
-
-
-
-   pg.display.flip()
+    screen.blit(bg_image, (0, 0))
+    layout.update(screen)
+    player.update(screen)
+    # x = player.get_info()[0]
+    # y = player.get_info()[1]
+    # laser = Weapons(hero, x, y, screen)
+    if shooting:
+        for laser in missile_group:
+            laser.update(player.right, player.left)
+        for tile in tile_list:
+            if tile[1].colliderect(laser.rect.x,
+                                   laser.rect.y,
+                                   laser.rect.width,
+                                   laser.rect.height):
+                laser.kill()
+                print('dead')
+            if tile[1].colliderect(laser.rect.x,
+                                   laser.rect.y,
+                                   laser.rect.width,
+                                   laser.rect.height):
+                laser.kill()
+                print('dead')
+    pg.display.flip()
 
 pg.quit()

@@ -87,7 +87,7 @@ class Player(pygame.sprite.Sprite):
         self.velo_y = 0
         self.image_rect = self.image.get_rect()
         self.image_rect.center = DISPLAY_WIDTH//7, DISPLAY_HEIGHT - self.image_rect.height*0.5
-        self.right = False
+        self.right = True
         self.left = False
         self.jumping = False
         self.falling = False
@@ -172,47 +172,54 @@ class Player(pygame.sprite.Sprite):
                     self.falling = False
         if keys[pygame.K_e]:
             self.shooting = True
+        # for event in pg.event.get():
+        #     if event.type == pg.KEYUP:
+        #         if event.key == pg.K_e:
+        #             self.shooting = False
 
         self.image_rect.x += dx
         self.image_rect.y += dy
-
 
         if self.image_rect.left <= self.tile_size:
             self.image_rect.left = self.tile_size
         display.blit(self.image, (self.image_rect.x, self.image_rect.y))
         pygame.draw.rect(display, WHITE, self.image_rect, 2)
     def get_info(self):
-        return self.image_rect.x, self.image_rect.y
+        return self.image_rect.x, self.image_rect.y, self.shooting
 
 
 class Weapons(pygame.sprite.Sprite):
-    def __init__(self, sheet, x, y, display):
+    def __init__(self, sheet, x, y, display, tile_set):
+        pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
         self.x = x
         self.y = y+25
         self.display = display
+        self.tile_set = tile_set
         self.velo = 0
         self.laser_right = self.sheet.image_at((322, 690, 45, 22), -1)
         self.laser_left = pg.transform.flip(self.laser_right, True, False)
         self.image = self.sheet.image_at((322, 690, 45, 22), -1)
         self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
 
-    def update(self, right, left, shooting):
+    def update(self, right, left):
         if right == True:
-            self.velo = 2
+            self.velo = 5
             self.image = self.laser_right
         if left == True:
-            self.velo = -2
+            self.velo = -5
             self.image = self.laser_left
-        if shooting:
-            self.rect.x += self.velo
-            self.display.blit(self.image, (self.x, self.y))
+        # if shooting:
+        #     self.display.blit(self.image, (self.rect.x, self.rect.y))
+        self.rect.x += self.velo
+        self.display.blit(self.image, (self.rect.x, self.rect.y))
 
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
         pygame.sprite.Sprite.__init__(self)
-
         self.image = image
         self.x = x
         self.y = y
@@ -221,6 +228,7 @@ class Platform(pygame.sprite.Sprite):
         self.change_x = 0
 class Level:
     def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
         brick_block = pg.image.load("assets/tile116.png")
         brick_block = pg.transform.scale(brick_block, (TILE_SIZE, TILE_SIZE))
         bottom_block = pg.image.load("assets/tile094.png")
