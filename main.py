@@ -6,7 +6,8 @@ from settings import *
 pg.init()
 
 #bg_image = pg.image.load("assets/centaur_bridge.png")
-bg_image = pg.image.load("assets/oie_18154314jgX7zpnN.jpg")
+#bg_image = pg.image.load("assets/oie_18154314jgX7zpnN.jpg")
+bg_image = pg.image.load("assets/sci_fi_bg1.jpg")
 bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
 # Set Base Screen
@@ -27,7 +28,7 @@ missile_group = pygame.sprite.Group()
 # shooting_hero = (535, 160, 100, 80)
 # shooting_villain = (535, 160, 100, 80)
 layout = sprites.Level()
-tile_list = layout.get_tiles()
+tile_list = layout.get_physical_tiles()
 print(tile_list)
 player = Player(hero, 100, 850, 50, tile_list)
 player_group.add(player)

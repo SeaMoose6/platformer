@@ -206,13 +206,13 @@ class Weapons(pygame.sprite.Sprite):
 
     def update(self, right, left):
         if right == True:
-            self.velo = 5
-            self.image = self.laser_right
+            if self.x < self.rect.centerx < self.x+40:
+                self.velo = 5
+                self.image = self.laser_right
         if left == True:
-            self.velo = -5
-            self.image = self.laser_left
-        # if shooting:
-        #     self.display.blit(self.image, (self.rect.x, self.rect.y))
+            if self.x < self.rect.centerx < self.x + 40:
+                self.velo = -5
+                self.image = self.laser_left
         self.rect.x += self.velo
         self.display.blit(self.image, (self.rect.x, self.rect.y))
 
@@ -239,10 +239,11 @@ class Level:
         door_block = pg.transform.scale(door_block, (TILE_SIZE*2, TILE_SIZE*2))
         self.tile_list = []
         self.background_tiles = []
+        self.all_tiles = []
 
         for i, row in enumerate(LAYOUT):
             for j, col in enumerate(row):
-                x_val = j * TILE_SIZE
+                x_val = j * TILE_SIZE - 1000
                 y_val = i * TILE_SIZE
 
                 if col == "1":
@@ -251,24 +252,28 @@ class Level:
                     image_rect.y = y_val
                     tile = (brick_block, image_rect)
                     self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
                 if col == "2":
                     image_rect = bottom_block.get_rect()
                     image_rect.x = x_val
                     image_rect.y = y_val
                     tile = (bottom_block, image_rect)
                     self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
                 if col == "3":
                     image_rect = wall_block.get_rect()
                     image_rect.x = x_val
                     image_rect.y = y_val
                     tile = (wall_block, image_rect)
                     self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
                 if col == "4":
                     image_rect = door_block.get_rect()
                     image_rect.x = x_val
                     image_rect.y = y_val
                     tile = (door_block, image_rect)
                     self.background_tiles.append(tile)
+                    self.all_tiles.append(tile)
 
     def update(self, display):
         self.display = display
@@ -276,5 +281,9 @@ class Level:
             self.display.blit(tile[0], tile[1])
         for tile in self.background_tiles:
             self.display.blit(tile[0], tile[1])
-    def get_tiles(self):
+        for tile in self.all_tiles:
+            self.display.blit(tile[0], tile[1])
+    def get_physical_tiles(self):
         return self.tile_list
+    def get_all_tiles(self):
+        return self.all_tiles
