@@ -29,8 +29,9 @@ missile_group = pygame.sprite.Group()
 # shooting_villain = (535, 160, 100, 80)
 layout = sprites.Level()
 tile_list = layout.get_physical_tiles()
+bg_tile_list = layout.get_bg_tiles()
 print(tile_list)
-player = Player(hero, 100, 850, 50, tile_list)
+player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
 player_group.add(player)
 
 
@@ -73,13 +74,11 @@ while playing:
                                    laser.rect.width,
                                    laser.rect.height):
                 laser.kill()
-                print('dead')
             if tile[1].colliderect(laser.rect.x,
                                    laser.rect.y,
                                    laser.rect.width,
                                    laser.rect.height):
                 laser.kill()
-                print('dead')
     pg.display.flip()
 
 pg.quit()

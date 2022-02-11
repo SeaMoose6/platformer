@@ -64,11 +64,12 @@ class SpriteSheet:
         return self.images_at(sprite_rects, colorkey)
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, sheet, x, y, tile_size, tile_set):
+    def __init__(self, sheet, x, y, tile_size, tile_set, bg_tile_set):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
         self.tile_size = tile_size
         self.tile_set = tile_set
+        self.bg_tile_set = bg_tile_set
         self.standing_right = self.sheet.image_at((15, 7, 50, 72), -1)
         self.standing_left = pg.transform.flip(self.standing_right, True, False)
         self.jumping_right = self.sheet.image_at((138, 465, 50, 102), -1)
@@ -86,7 +87,7 @@ class Player(pygame.sprite.Sprite):
         self.image_delay = 100
         self.velo_y = 0
         self.image_rect = self.image.get_rect()
-        self.image_rect.center = DISPLAY_WIDTH//7, DISPLAY_HEIGHT - self.image_rect.height*0.5
+        self.image_rect.center = DISPLAY_WIDTH//5, DISPLAY_HEIGHT - self.image_rect.height*0.5
         self.right = True
         self.left = False
         self.jumping = False
@@ -97,30 +98,55 @@ class Player(pygame.sprite.Sprite):
         self.current = pygame.time.get_ticks()
         dx = 0
         dy = 0
+        tile_dx = 0
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
-            dx = 4
-            self.right = True
-            self.left = False
-            now = pygame.time.get_ticks()
-            if now - self.previous_update >= self.image_delay:
-                self.previous_update = now
-                if self.frame >= len(self.run_right):
-                    self.frame = 0
-                self.image = self.run_right[self.frame]
-                self.frame = self.frame + 1
+            if self.image_rect.x < 1100:
+                dx = 4
+                self.right = True
+                self.left = False
+                now = pygame.time.get_ticks()
+                if now - self.previous_update >= self.image_delay:
+                    self.previous_update = now
+                    if self.frame >= len(self.run_right):
+                        self.frame = 0
+                    self.image = self.run_right[self.frame]
+                    self.frame = self.frame + 1
+            else:
+                tile_dx = -4
+                self.right = True
+                self.left = False
+                now = pygame.time.get_ticks()
+                if now - self.previous_update >= self.image_delay:
+                    self.previous_update = now
+                    if self.frame >= len(self.run_right):
+                        self.frame = 0
+                    self.image = self.run_right[self.frame]
+                    self.frame = self.frame + 1
 
         elif keys[pygame.K_a]:
-            dx = -4
-            self.right = False
-            self.left = True
-            now = pygame.time.get_ticks()
-            if now - self.previous_update >= self.image_delay:
-                self.previous_update = now
-                if self.frame >= len(self.run_left):
-                    self.frame = 0
-                self.image = self.run_left[self.frame]
-                self.frame = self.frame + 1
+            if self.image_rect.x > 300:
+                dx = -4
+                self.right = False
+                self.left = True
+                now = pygame.time.get_ticks()
+                if now - self.previous_update >= self.image_delay:
+                    self.previous_update = now
+                    if self.frame >= len(self.run_left):
+                        self.frame = 0
+                    self.image = self.run_left[self.frame]
+                    self.frame = self.frame + 1
+            else:
+                tile_dx = 4
+                self.right = False
+                self.left = True
+                now = pygame.time.get_ticks()
+                if now - self.previous_update >= self.image_delay:
+                    self.previous_update = now
+                    if self.frame >= len(self.run_left):
+                        self.frame = 0
+                    self.image = self.run_left[self.frame]
+                    self.frame = self.frame + 1
         else:
             dx = 0
             self.frame = 0
@@ -150,6 +176,11 @@ class Player(pygame.sprite.Sprite):
 
         dy += self.velo_y
         for tile in self.tile_set:
+            if self.image_rect.colliderect(tile[1].x + tile_dx,
+                                           tile[1].y,
+                                           tile[1].width,
+                                           tile[1].height):
+                tile_dx = 0
             if tile[1].colliderect(self.image_rect.x + dx,
                                     self.image_rect.y,
                                     self.image_rect.width,
@@ -179,6 +210,12 @@ class Player(pygame.sprite.Sprite):
 
         self.image_rect.x += dx
         self.image_rect.y += dy
+        for tile in self.tile_set:
+            tile_rect = tile[1]
+            tile_rect.x += tile_dx
+        for tile in self.bg_tile_set:
+            bg_tile_rect = tile[1]
+            bg_tile_rect.x += tile_dx
 
         if self.image_rect.left <= self.tile_size:
             self.image_rect.left = self.tile_size
@@ -237,13 +274,23 @@ class Level:
         wall_block = pg.transform.scale(wall_block, (TILE_SIZE, TILE_SIZE))
         door_block = pg.image.load("assets/door_red.png")
         door_block = pg.transform.scale(door_block, (TILE_SIZE*2, TILE_SIZE*2))
+        blue_door = pg.image.load("assets/door_blue.png")
+        blue_door = pg.transform.scale(blue_door, (TILE_SIZE * 2, TILE_SIZE * 2))
+        blue_brick = pg.image.load("assets/tile065.png")
+        blue_brick = pg.transform.scale(blue_brick, (TILE_SIZE, TILE_SIZE))
+        blue_bottom = pg.image.load("assets/tile073.png")
+        blue_bottom = pg.transform.scale(blue_bottom, (TILE_SIZE, TILE_SIZE))
+        blue_bottom2 = pg.image.load("assets/tile074.png")
+        blue_bottom2 = pg.transform.scale(blue_bottom2, (TILE_SIZE, TILE_SIZE))
+        blue_wall = pg.image.load("assets/tile087.png")
+        blue_wall = pg.transform.scale(blue_wall, (TILE_SIZE, TILE_SIZE))
         self.tile_list = []
         self.background_tiles = []
         self.all_tiles = []
 
         for i, row in enumerate(LAYOUT):
             for j, col in enumerate(row):
-                x_val = j * TILE_SIZE - 1000
+                x_val = j * TILE_SIZE - 1500
                 y_val = i * TILE_SIZE
 
                 if col == "1":
@@ -274,6 +321,41 @@ class Level:
                     tile = (door_block, image_rect)
                     self.background_tiles.append(tile)
                     self.all_tiles.append(tile)
+                if col == "5":
+                    image_rect = blue_door.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (blue_door, image_rect)
+                    self.background_tiles.append(tile)
+                    self.all_tiles.append(tile)
+                if col == "6":
+                    image_rect = blue_brick.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (blue_brick, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
+                if col == "7":
+                    image_rect = blue_bottom.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (blue_bottom, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
+                if col == "8":
+                    image_rect = blue_bottom2.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (blue_bottom2, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
+                if col == "9":
+                    image_rect = blue_wall.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (blue_wall, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
 
     def update(self, display):
         self.display = display
@@ -287,3 +369,5 @@ class Level:
         return self.tile_list
     def get_all_tiles(self):
         return self.all_tiles
+    def get_bg_tiles(self):
+        return self.background_tiles
