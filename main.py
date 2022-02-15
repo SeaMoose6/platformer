@@ -61,7 +61,7 @@ while playing:
 
     screen.blit(bg_image, (0, 0))
     layout.update(screen)
-    player.update(screen)
+
     # x = player.get_info()[0]
     # y = player.get_info()[1]
     # laser = Weapons(hero, x, y, screen)
@@ -79,6 +79,7 @@ while playing:
                                    laser.rect.width,
                                    laser.rect.height):
                 laser.kill()
+    player.update(screen)
     pg.display.flip()
 
 pg.quit()

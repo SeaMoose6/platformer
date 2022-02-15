@@ -70,15 +70,17 @@ class Player(pygame.sprite.Sprite):
         self.tile_size = tile_size
         self.tile_set = tile_set
         self.bg_tile_set = bg_tile_set
-        self.standing_right = self.sheet.image_at((15, 7, 50, 72), -1)
+        self.standing_right = self.sheet.image_at((15, 13, 50, 64), -1)
         self.standing_left = pg.transform.flip(self.standing_right, True, False)
-        self.jumping_right = self.sheet.image_at((138, 465, 50, 102), -1)
+        self.jumping_right = self.sheet.image_at((140, 474, 50, 78), -1)
         self.jumping_left = pg.transform.flip(self.jumping_right, True, False)
-        self.falling_right = self.sheet.image_at((330, 465, 50, 72), -1)
-        self.falling_left = pg.transform.flip(self.falling_right, True, False)
-        self.shooting_right = self.sheet.image_at((535, 160, 100, 80), -1)
-        self.run_right = [self.sheet.image_at((23, 172, 51, 68), -1), self.sheet.image_at((106, 173, 51, 68), -1),
-                         self.sheet.image_at((182, 173, 51, 68), -1), self.sheet.image_at((257, 173, 51, 68), -1)]
+        # self.falling_right = self.sheet.image_at((330, 465, 50, 72), -1)
+        # self.falling_left = pg.transform.flip(self.falling_right, True, False)
+        # self.bomb_right = self.sheet.image_at((535, 160, 100, 80), -1)
+        self.shooting_right = sheet.image_at((425, 90, 73, 63), -1)
+        self.shooting_left = pg.transform.flip(self.shooting_right, True, False)
+        self.run_right = [self.sheet.image_at((23, 174, 51, 65), -1), self.sheet.image_at((106, 175, 51, 65), -1),  self.sheet.image_at((182, 175, 51, 65), -1), self.sheet.image_at((257, 175, 51, 65), -1),
+                         ]
         self.run_left = [pg.transform.flip(player, True, False) for player in self.run_right]
         self.image = self.standing_right
         self.frame = 0
@@ -87,7 +89,7 @@ class Player(pygame.sprite.Sprite):
         self.image_delay = 100
         self.velo_y = 0
         self.image_rect = self.image.get_rect()
-        self.image_rect.center = DISPLAY_WIDTH//5, DISPLAY_HEIGHT - self.image_rect.height*0.5
+        self.image_rect.center = DISPLAY_WIDTH//5, DISPLAY_HEIGHT - self.image_rect.height
         self.right = True
         self.left = False
         self.jumping = False
@@ -203,10 +205,10 @@ class Player(pygame.sprite.Sprite):
                     self.falling = False
         if keys[pygame.K_e]:
             self.shooting = True
-        # for event in pg.event.get():
-        #     if event.type == pg.KEYUP:
-        #         if event.key == pg.K_e:
-        #             self.shooting = False
+            if self.shooting and self.right:
+                self.image = self.shooting_right
+            if self.shooting and self.left:
+                self.image = self.shooting_left
 
         self.image_rect.x += dx
         self.image_rect.y += dy
@@ -220,7 +222,7 @@ class Player(pygame.sprite.Sprite):
         if self.image_rect.left <= self.tile_size:
             self.image_rect.left = self.tile_size
         display.blit(self.image, (self.image_rect.x, self.image_rect.y))
-        pygame.draw.rect(display, WHITE, self.image_rect, 2)
+        #pygame.draw.rect(display, WHITE, self.image_rect, 2)
     def get_info(self):
         return self.image_rect.x, self.image_rect.y, self.shooting
 
@@ -234,9 +236,9 @@ class Weapons(pygame.sprite.Sprite):
         self.display = display
         self.tile_set = tile_set
         self.velo = 0
-        self.laser_right = self.sheet.image_at((322, 690, 45, 22), -1)
+        self.laser_right = self.sheet.image_at((322, 694, 44, 18), -1)
         self.laser_left = pg.transform.flip(self.laser_right, True, False)
-        self.image = self.sheet.image_at((322, 690, 45, 22), -1)
+        self.image = self.sheet.image_at((322, 693, 45, 18), -1)
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
