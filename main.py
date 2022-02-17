@@ -22,6 +22,7 @@ villain = sprites.SpriteSheet("assets/xeonsheetsupah_0.bmp")
 player_group = pygame.sprite.Group()
 platform_group = pygame.sprite.Group()
 missile_group = pygame.sprite.Group()
+bomb_group = pygame.sprite.Group()
 
 
 # standing_hero = (0, 0, 70, 80)
@@ -37,6 +38,7 @@ player_group.add(player)
 
 
 shooting = False
+bombing = False
 
 clock = pg.time.Clock()
 
@@ -56,18 +58,21 @@ while playing:
                 y = player.get_info()[1]
                 laser = Weapons(hero, x, y, screen, tile_list)
                 missile_group.add(laser)
-                #laser.update(player.right, player.left)
+            if event.key == pg.K_r:
+                bombing = True
+                x = player.get_info()[0]
+                y = player.get_info()[1]
+                bomb = Weapons(hero, x, y, screen, tile_list)
+                bomb_group.add(bomb)
 
 
     screen.blit(bg_image, (0, 0))
     layout.update(screen)
 
-    # x = player.get_info()[0]
-    # y = player.get_info()[1]
-    # laser = Weapons(hero, x, y, screen)
     if shooting:
         for laser in missile_group:
-            laser.update(player.right, player.left)
+            laser.laser_update(player.right, player.left)
+    for laser in missile_group:
         for tile in tile_list:
             if tile[1].colliderect(laser.rect.x,
                                    laser.rect.y,
@@ -79,6 +84,22 @@ while playing:
                                    laser.rect.width,
                                    laser.rect.height):
                 laser.kill()
+
+    if bombing:
+        for bomb in bomb_group:
+            bomb.bomb_update(player.right, player.left)
+    for bomb in bomb_group:
+        for tile in tile_list:
+            if tile[1].colliderect(bomb.bomb_rect.x,
+                                   bomb.bomb_rect.y,
+                                   bomb.bomb_rect.width,
+                                   bomb.bomb_rect.height):
+                bomb.kill()
+            if tile[1].colliderect(bomb.bomb_rect.x,
+                                   bomb.bomb_rect.y,
+                                   bomb.bomb_rect.width,
+                                   bomb.bomb_rect.height):
+                bomb.kill()
     player.update(screen)
     pg.display.flip()
 

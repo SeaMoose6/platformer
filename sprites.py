@@ -70,6 +70,7 @@ class Player(pygame.sprite.Sprite):
         self.tile_size = tile_size
         self.tile_set = tile_set
         self.bg_tile_set = bg_tile_set
+        self.nothing = self.sheet.image_at((1, 1, 5, 5,), -1)
         self.standing_right = self.sheet.image_at((15, 13, 50, 64), -1)
         self.standing_left = pg.transform.flip(self.standing_right, True, False)
         self.jumping_right = self.sheet.image_at((140, 474, 50, 78), -1)
@@ -79,6 +80,8 @@ class Player(pygame.sprite.Sprite):
         # self.bomb_right = self.sheet.image_at((535, 160, 100, 80), -1)
         self.shooting_right = sheet.image_at((425, 90, 73, 63), -1)
         self.shooting_left = pg.transform.flip(self.shooting_right, True, False)
+        self.bombing_right = sheet.image_at((260, 670, 63, 64), -1)
+        self.bombing_left = pg.transform.flip(self.bombing_right, True, False)
         self.run_right = [self.sheet.image_at((23, 174, 51, 65), -1), self.sheet.image_at((106, 175, 51, 65), -1),  self.sheet.image_at((182, 175, 51, 65), -1), self.sheet.image_at((257, 175, 51, 65), -1),
                          ]
         self.run_left = [pg.transform.flip(player, True, False) for player in self.run_right]
@@ -95,6 +98,7 @@ class Player(pygame.sprite.Sprite):
         self.jumping = False
         self.falling = False
         self.shooting = False
+        self.bombing = True
 
     def update(self, display):
         self.current = pygame.time.get_ticks()
@@ -102,6 +106,7 @@ class Player(pygame.sprite.Sprite):
         dy = 0
         tile_dx = 0
         keys = pygame.key.get_pressed()
+        mouse = pygame.mouse.get_pressed()
         if keys[pygame.K_d]:
             if self.image_rect.x < 1100:
                 dx = 4
@@ -206,9 +211,18 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_e]:
             self.shooting = True
             if self.shooting and self.right:
-                self.image = self.shooting_right
+                self.image = self.nothing
+                display.blit(self.shooting_right, (self.image_rect.x, self.image_rect.y + 2))
             if self.shooting and self.left:
-                self.image = self.shooting_left
+                self.image = self.nothing
+                display.blit(self.shooting_left, (self.image_rect.x-23, self.image_rect.y+2))
+        if keys[pygame.K_r]:
+            self.bombing = True
+            if self.bombing and self.right:
+                self.image = self.bombing_right
+            if self.bombing and self.left:
+                self.image = self.nothing
+                display.blit(self.bombing_left, (self.image_rect.x-12, self.image_rect.y))
 
         self.image_rect.x += dx
         self.image_rect.y += dy
@@ -224,7 +238,7 @@ class Player(pygame.sprite.Sprite):
         display.blit(self.image, (self.image_rect.x, self.image_rect.y))
         #pygame.draw.rect(display, WHITE, self.image_rect, 2)
     def get_info(self):
-        return self.image_rect.x, self.image_rect.y, self.shooting
+        return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing
 
 
 class Weapons(pygame.sprite.Sprite):
@@ -236,14 +250,23 @@ class Weapons(pygame.sprite.Sprite):
         self.display = display
         self.tile_set = tile_set
         self.velo = 0
+
         self.laser_right = self.sheet.image_at((322, 694, 44, 18), -1)
         self.laser_left = pg.transform.flip(self.laser_right, True, False)
         self.image = self.sheet.image_at((322, 693, 45, 18), -1)
         self.rect = self.image.get_rect()
+
+        self.bomb_right = self.sheet.image_at((480, 700, 40, 20), -1)
+        self.bomb_left = pg.transform.flip(self.bomb_right, True, False)
+        self.bomb_image = self.bomb_right
+        self.bomb_rect = self.bomb_image.get_rect()
+
         self.rect.x = self.x
         self.rect.y = self.y
+        self.bomb_rect.x = self.x
+        self.bomb_rect.y = self.y
 
-    def update(self, right, left):
+    def laser_update(self, right, left):
         if right == True:
             if self.x < self.rect.centerx < self.x+40:
                 self.velo = 5
@@ -254,6 +277,17 @@ class Weapons(pygame.sprite.Sprite):
                 self.image = self.laser_left
         self.rect.x += self.velo
         self.display.blit(self.image, (self.rect.x, self.rect.y))
+    def bomb_update(self, right, left):
+        if right == True:
+            if self.x < self.bomb_rect.centerx < self.x+40:
+                self.velo = 3
+                self.bomb_image = self.bomb_right
+        if left == True:
+            if self.x < self.bomb_rect.centerx < self.x + 40:
+                self.velo = -3
+                self.bomb_image = self.bomb_left
+        self.bomb_rect.x += self.velo
+        self.display.blit(self.bomb_image, (self.bomb_rect.x, self.bomb_rect.y))
 
 
 class Platform(pygame.sprite.Sprite):
