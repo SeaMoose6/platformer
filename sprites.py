@@ -239,7 +239,33 @@ class Player(pygame.sprite.Sprite):
         #pygame.draw.rect(display, WHITE, self.image_rect, 2)
     def get_info(self):
         return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing
-
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, x, y, display):
+        pygame.sprite.Sprite.__init__(self)
+        self.sheet = sheet
+        self.tile_size = tile_size
+        self.tile_set = tile_set
+        self.bg_tile_set = bg_tile_set
+        self.tankbot_right = self.sheet.image_at((132, 0, 31, 31), -1)
+        self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
+        self.image = self.tankbot_left
+        self.image_rect = self.image.get_rect()
+        dx = 0
+        dy = 0
+        for tile in self.tile_set:
+            if tile[1].colliderect(self.image_rect.x + dx,
+                                    self.image_rect.y,
+                                    self.image_rect.width,
+                                    self.image_rect.height):
+                dx = 0
+            if tile[1].colliderect(self.image_rect.x,
+                                    self.image_rect.y + dy,
+                                    self.image_rect.width,
+                                    self.image_rect.height):
+                dy = tile[1].top - self.image_rect.bottom
+        self.image_rect.x += dx
+        self.image_rect.y += dy
+        display.blit(self.image, (x, y))
 
 class Weapons(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, display, tile_set):
@@ -289,6 +315,31 @@ class Weapons(pygame.sprite.Sprite):
         self.bomb_rect.x += self.velo
         self.display.blit(self.bomb_image, (self.bomb_rect.x, self.bomb_rect.y))
 
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, sheet, center):
+        pygame.sprite.Sprite.__init__(self)
+        self.sheet = sheet
+        self.EXPLOSION_LIST = [self.sheet.image_at((0, 0, 31, 31), -1), self.sheet.image_at((32, 0, 31, 31), -1), self.sheet.image_at((65, 0, 31, 31), -1),
+                          self.sheet.image_at((96, 0, 31, 31), -1),self.sheet.image_at((128, 0, 31, 31), -1), self.sheet.image_at((160, 0, 31, 31), -1)]
+        self.image = self.EXPLOSION_LIST[0]
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+        self.frame = 0
+        self.frame_rate = 50
+        self.kill_center = center
+        self.previous_update = pygame.time.get_ticks()
+
+    def update(self):
+        current = pygame.time.get_ticks()
+        if current - self.previous_update > self.frame_rate:
+            self.previous_update = current
+            self.frame += 1
+        if self.frame == len(self.EXPLOSION_LIST):
+            self.kill()
+        else:
+            self.image = self.EXPLOSION_LIST[self.frame]
+            self.rect = self.image.get_rect()
+            self.rect.center = self.kill_center
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
@@ -320,9 +371,12 @@ class Level:
         blue_bottom2 = pg.transform.scale(blue_bottom2, (TILE_SIZE, TILE_SIZE))
         blue_wall = pg.image.load("assets/tile087.png")
         blue_wall = pg.transform.scale(blue_wall, (TILE_SIZE, TILE_SIZE))
+        self.tankbot_right = self.sheet.image_at((132, 0, 31, 31), -1)
+        self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
         self.tile_list = []
         self.background_tiles = []
         self.all_tiles = []
+        self.enemies = []
 
         for i, row in enumerate(LAYOUT):
             for j, col in enumerate(row):
@@ -392,6 +446,11 @@ class Level:
                     tile = (blue_wall, image_rect)
                     self.tile_list.append(tile)
                     self.all_tiles.append(tile)
+                if col == "E":
+                    image_rect = self.tankbot_right.get_rect
+                    self.enemy_x = x_val
+                    self.enemy_y = y_val
+                    self.enemies.append
 
     def update(self, display):
         self.display = display
@@ -407,3 +466,5 @@ class Level:
         return self.all_tiles
     def get_bg_tiles(self):
         return self.background_tiles
+    def get_enemy_loc(self):
+        return self.enemy_x, self.enemy_y

@@ -1,6 +1,6 @@
 import pygame as pg
 import sprites
-from sprites import Player, Platform, Weapons
+from sprites import Player, Platform, Weapons, Explosion, Enemy
 from settings import *
 
 pg.init()
@@ -18,11 +18,14 @@ playing = True
 
 hero = sprites.SpriteSheet("assets/xeonsheet.bmp")
 villain = sprites.SpriteSheet("assets/xeonsheetsupah_0.bmp")
+explosion_sheet = sprites.SpriteSheet("assets/explosion.png")
+enemies = sprites.SpriteSheet("assets/ScifiCritters4 - Copy.PNG")
 
 player_group = pygame.sprite.Group()
 platform_group = pygame.sprite.Group()
 missile_group = pygame.sprite.Group()
 bomb_group = pygame.sprite.Group()
+explosion_group = pygame.sprite.Group()
 
 
 # standing_hero = (0, 0, 70, 80)
@@ -34,6 +37,8 @@ bg_tile_list = layout.get_bg_tiles()
 print(tile_list)
 player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
 player_group.add(player)
+enemy = Enemy(enemies,50, tile_list, bg_tile_list, layout.get_enemy_loc()[0], layout.get_enemy_loc()[1], screen)
+print(layout.get_enemy_loc()[0], layout.get_enemy_loc()[1])
 
 
 
@@ -94,13 +99,19 @@ while playing:
                                    bomb.bomb_rect.y,
                                    bomb.bomb_rect.width,
                                    bomb.bomb_rect.height):
+                explosion = Explosion(explosion_sheet, bomb.bomb_rect.center)
                 bomb.kill()
+                explosion_group.add(explosion)
             if tile[1].colliderect(bomb.bomb_rect.x,
                                    bomb.bomb_rect.y,
                                    bomb.bomb_rect.width,
                                    bomb.bomb_rect.height):
+                explosion = Explosion(explosion_sheet, bomb.bomb_rect.center)
                 bomb.kill()
+                explosion_group.add(explosion)
     player.update(screen)
+    explosion_group.draw(screen)
+    explosion_group.update()
     pg.display.flip()
 
 pg.quit()
