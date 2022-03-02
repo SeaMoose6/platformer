@@ -31,14 +31,15 @@ explosion_group = pygame.sprite.Group()
 # standing_hero = (0, 0, 70, 80)
 # shooting_hero = (535, 160, 100, 80)
 # shooting_villain = (535, 160, 100, 80)
-layout = sprites.Level()
+layout = sprites.Level(enemies)
 tile_list = layout.get_physical_tiles()
 bg_tile_list = layout.get_bg_tiles()
+enemy_list = layout.get_enemy_list()
 print(tile_list)
 player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
 player_group.add(player)
-enemy = Enemy(enemies,50, tile_list, bg_tile_list, layout.get_enemy_loc()[0], layout.get_enemy_loc()[1], screen)
-print(layout.get_enemy_loc()[0], layout.get_enemy_loc()[1])
+enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list)
+
 
 
 
@@ -110,6 +111,7 @@ while playing:
                 bomb.kill()
                 explosion_group.add(explosion)
     player.update(screen)
+    enemy.update()
     explosion_group.draw(screen)
     explosion_group.update()
     pg.display.flip()

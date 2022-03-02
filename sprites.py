@@ -226,6 +226,7 @@ class Player(pygame.sprite.Sprite):
 
         self.image_rect.x += dx
         self.image_rect.y += dy
+
         for tile in self.tile_set:
             tile_rect = tile[1]
             tile_rect.x += tile_dx
@@ -240,18 +241,25 @@ class Player(pygame.sprite.Sprite):
     def get_info(self):
         return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, x, y, display):
+    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, display, enemy_list):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
         self.tile_size = tile_size
         self.tile_set = tile_set
         self.bg_tile_set = bg_tile_set
-        self.tankbot_right = self.sheet.image_at((132, 0, 31, 31), -1)
+        self.display = display
+        self.tankbot = self.sheet.image_at((132, 0, 31, 31), -1)
+        self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
-        self.image = self.tankbot_left
-        self.image_rect = self.image.get_rect()
+        self.enemy_list = enemy_list
+        for enemy in self.enemy_list:
+            self.image_rect = enemy[1]
+        self.x_loc = self.image_rect.x
+        self.right = True
+        self.left = False
+    def update(self):
         dx = 0
-        dy = 0
+        dy = 3
         for tile in self.tile_set:
             if tile[1].colliderect(self.image_rect.x + dx,
                                     self.image_rect.y,
@@ -263,9 +271,26 @@ class Enemy(pygame.sprite.Sprite):
                                     self.image_rect.width,
                                     self.image_rect.height):
                 dy = tile[1].top - self.image_rect.bottom
+        for enemy in self.enemy_list:
+            if self.right:
+                if self.image_rect.x < self.x_loc+10:
+                    dx = 3
+                else:
+                    dx = -3
+                    self.right = False
+                    self.left = True
+            if self.left:
+                if self.image_rect.x <= self.x_loc-10:
+                    dx = -3
+                else:
+                    dx = 3
+                    self.right = True
+                    self.left = False
         self.image_rect.x += dx
         self.image_rect.y += dy
-        display.blit(self.image, (x, y))
+        self.display.blit(self.enemy_list[0][0], self.enemy_list[0][1])
+    def get_direction(self):
+        return self.right, self.left
 
 class Weapons(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, display, tile_set):
@@ -351,8 +376,9 @@ class Platform(pygame.sprite.Sprite):
         self.rect.center = self.x, self.y
         self.change_x = 0
 class Level:
-    def __init__(self):
+    def __init__(self, sheet):
         pygame.sprite.Sprite.__init__(self)
+        self.sheet = sheet
         brick_block = pg.image.load("assets/tile116.png")
         brick_block = pg.transform.scale(brick_block, (TILE_SIZE, TILE_SIZE))
         bottom_block = pg.image.load("assets/tile094.png")
@@ -371,7 +397,8 @@ class Level:
         blue_bottom2 = pg.transform.scale(blue_bottom2, (TILE_SIZE, TILE_SIZE))
         blue_wall = pg.image.load("assets/tile087.png")
         blue_wall = pg.transform.scale(blue_wall, (TILE_SIZE, TILE_SIZE))
-        self.tankbot_right = self.sheet.image_at((132, 0, 31, 31), -1)
+        self.tankbot = self.sheet.image_at((132, 0, 31, 31), -1)
+        self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
         self.tile_list = []
         self.background_tiles = []
@@ -447,10 +474,12 @@ class Level:
                     self.tile_list.append(tile)
                     self.all_tiles.append(tile)
                 if col == "E":
-                    image_rect = self.tankbot_right.get_rect
-                    self.enemy_x = x_val
-                    self.enemy_y = y_val
-                    self.enemies.append
+                    image_rect = self.tankbot_right.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val - 12
+                    enemy = (self.tankbot_right, image_rect)
+                    self.enemies.append(enemy)
+                    self.background_tiles.append(enemy)
 
     def update(self, display):
         self.display = display
@@ -460,11 +489,13 @@ class Level:
             self.display.blit(tile[0], tile[1])
         for tile in self.all_tiles:
             self.display.blit(tile[0], tile[1])
+        # for enemy in self.enemies:
+        #     self.display.blit(enemy[0], enemy[1])
     def get_physical_tiles(self):
         return self.tile_list
     def get_all_tiles(self):
         return self.all_tiles
     def get_bg_tiles(self):
         return self.background_tiles
-    def get_enemy_loc(self):
-        return self.enemy_x, self.enemy_y
+    def get_enemy_list(self):
+        return self.enemies
