@@ -241,7 +241,7 @@ class Player(pygame.sprite.Sprite):
     def get_info(self):
         return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, display, enemy_list):
+    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, display, enemy_list, player_info):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
         self.tile_size = tile_size
@@ -252,11 +252,16 @@ class Enemy(pygame.sprite.Sprite):
         self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
         self.enemy_list = enemy_list
+        self.player_info = player_info
+        self.image = self.tankbot_right
         for enemy in self.enemy_list:
             self.image_rect = enemy[1]
         self.x_loc = self.image_rect.x
         self.right = True
         self.left = False
+        self.enemies = []
+        print(enemy_list[0][1])
+        #print(self.image_rect)
     def update(self):
         dx = 0
         dy = 3
@@ -271,26 +276,35 @@ class Enemy(pygame.sprite.Sprite):
                                     self.image_rect.width,
                                     self.image_rect.height):
                 dy = tile[1].top - self.image_rect.bottom
-        for enemy in self.enemy_list:
-            if self.right:
-                if self.image_rect.x < self.x_loc+10:
-                    dx = 3
-                else:
-                    dx = -3
-                    self.right = False
-                    self.left = True
-            if self.left:
-                if self.image_rect.x <= self.x_loc-10:
-                    dx = -3
-                else:
-                    dx = 3
-                    self.right = True
-                    self.left = False
+        if self.player_info[0] < 1100:
+            print(self.player_info[0])
+            pass
+        else:
+            dx = -4
+
+
+        if self.right:
+            if self.image_rect.x <= self.x_loc+370:
+                dx = 1
+            else:
+                dx = -1
+                self.right = False
+                self.left = True
+                self.image = self.tankbot_left
+        if self.left:
+            if self.image_rect.x >= self.x_loc-90:
+                dx = -1
+            else:
+                dx = 1
+                self.right = True
+                self.left = False
+                self.image = self.tankbot_right
         self.image_rect.x += dx
         self.image_rect.y += dy
-        self.display.blit(self.enemy_list[0][0], self.enemy_list[0][1])
-    def get_direction(self):
-        return self.right, self.left
+        self.enemies.append((self.image, self.image_rect))
+        self.display.blit(self.image, self.image_rect)
+    def get_enemies(self):
+        return self.enemies
 
 class Weapons(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, display, tile_set):
@@ -479,7 +493,7 @@ class Level:
                     image_rect.y = y_val - 12
                     enemy = (self.tankbot_right, image_rect)
                     self.enemies.append(enemy)
-                    self.background_tiles.append(enemy)
+                    #self.background_tiles.append(enemy)
 
     def update(self, display):
         self.display = display
