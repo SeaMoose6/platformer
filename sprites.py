@@ -95,6 +95,7 @@ class Player(pygame.sprite.Sprite):
         self.image_rect.center = DISPLAY_WIDTH//5, DISPLAY_HEIGHT - self.image_rect.height
         self.right = True
         self.left = False
+        self.walking = False
         self.jumping = False
         self.falling = False
         self.shooting = False
@@ -123,6 +124,7 @@ class Player(pygame.sprite.Sprite):
                 tile_dx = -4
                 self.right = True
                 self.left = False
+                self.walking = True
                 now = pygame.time.get_ticks()
                 if now - self.previous_update >= self.image_delay:
                     self.previous_update = now
@@ -147,6 +149,7 @@ class Player(pygame.sprite.Sprite):
                 tile_dx = 4
                 self.right = False
                 self.left = True
+                self.walking = True
                 now = pygame.time.get_ticks()
                 if now - self.previous_update >= self.image_delay:
                     self.previous_update = now
@@ -154,6 +157,7 @@ class Player(pygame.sprite.Sprite):
                         self.frame = 0
                     self.image = self.run_left[self.frame]
                     self.frame = self.frame + 1
+
         else:
             dx = 0
             self.frame = 0
@@ -224,6 +228,9 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.nothing
                 display.blit(self.bombing_left, (self.image_rect.x-12, self.image_rect.y))
 
+        if dx == 0 and tile_dx == 0:
+            self.walking = False
+
         self.image_rect.x += dx
         self.image_rect.y += dy
 
@@ -239,9 +246,9 @@ class Player(pygame.sprite.Sprite):
         display.blit(self.image, (self.image_rect.x, self.image_rect.y))
         #pygame.draw.rect(display, WHITE, self.image_rect, 2)
     def get_info(self):
-        return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing
+        return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing, self.right, self.left, self.walking
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, display, enemy_list, player_info):
+    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, display, enemy_list):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
         self.tile_size = tile_size
@@ -252,7 +259,6 @@ class Enemy(pygame.sprite.Sprite):
         self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
         self.enemy_list = enemy_list
-        self.player_info = player_info
         self.image = self.tankbot_right
         for enemy in self.enemy_list:
             self.image_rect = enemy[1]
@@ -262,9 +268,12 @@ class Enemy(pygame.sprite.Sprite):
         self.enemies = []
         print(enemy_list[0][1])
         #print(self.image_rect)
-    def update(self):
+    def update(self, player_info):
         dx = 0
         dy = 3
+        screen_dx = 0
+        self.player_info = player_info
+
         for tile in self.tile_set:
             if tile[1].colliderect(self.image_rect.x + dx,
                                     self.image_rect.y,
@@ -276,13 +285,6 @@ class Enemy(pygame.sprite.Sprite):
                                     self.image_rect.width,
                                     self.image_rect.height):
                 dy = tile[1].top - self.image_rect.bottom
-        if self.player_info[0] < 1100:
-            print(self.player_info[0])
-            pass
-        else:
-            dx = -4
-
-
         if self.right:
             if self.image_rect.x <= self.x_loc+370:
                 dx = 1
@@ -299,8 +301,20 @@ class Enemy(pygame.sprite.Sprite):
                 self.right = True
                 self.left = False
                 self.image = self.tankbot_right
+
+        if self.player_info[0] < 1100:
+            pass
+        elif self.player_info[0] > 1100 and self.player_info[6]:
+            screen_dx = -4
+        if self.player_info[0] > 300:
+            pass
+        elif self.player_info[0] < 300 and self.player_info[6]:
+            screen_dx = 4
+
+        self.x_loc += screen_dx
         self.image_rect.x += dx
         self.image_rect.y += dy
+        self.image_rect.x += screen_dx
         self.enemies.append((self.image, self.image_rect))
         self.display.blit(self.image, self.image_rect)
     def get_enemies(self):
@@ -360,7 +374,9 @@ class Explosion(pygame.sprite.Sprite):
         self.sheet = sheet
         self.EXPLOSION_LIST = [self.sheet.image_at((0, 0, 31, 31), -1), self.sheet.image_at((32, 0, 31, 31), -1), self.sheet.image_at((65, 0, 31, 31), -1),
                           self.sheet.image_at((96, 0, 31, 31), -1),self.sheet.image_at((128, 0, 31, 31), -1), self.sheet.image_at((160, 0, 31, 31), -1)]
+        self.new_explosion_list = [pg.transform.scale2x(explosion) for explosion in self.EXPLOSION_LIST]
         self.image = self.EXPLOSION_LIST[0]
+        self.image_2 = self.new_explosion_list[0]
         self.rect = self.image.get_rect()
         self.rect.center = center
         self.frame = 0
@@ -368,17 +384,30 @@ class Explosion(pygame.sprite.Sprite):
         self.kill_center = center
         self.previous_update = pygame.time.get_ticks()
 
-    def update(self):
-        current = pygame.time.get_ticks()
-        if current - self.previous_update > self.frame_rate:
-            self.previous_update = current
-            self.frame += 1
-        if self.frame == len(self.EXPLOSION_LIST):
-            self.kill()
-        else:
-            self.image = self.EXPLOSION_LIST[self.frame]
-            self.rect = self.image.get_rect()
-            self.rect.center = self.kill_center
+    def update(self, num):
+        if num == 1:
+            current = pygame.time.get_ticks()
+            if current - self.previous_update > self.frame_rate:
+                self.previous_update = current
+                self.frame += 1
+            if self.frame == len(self.EXPLOSION_LIST):
+                self.kill()
+            else:
+                self.image = self.EXPLOSION_LIST[self.frame]
+                self.rect = self.image.get_rect()
+                self.rect.center = self.kill_center
+        if num == 2:
+            current = pygame.time.get_ticks()
+            if current - self.previous_update > self.frame_rate:
+                self.previous_update = current
+                self.frame += 1
+            if self.frame == len(self.new_explosion_list):
+                self.kill()
+            else:
+                self.image = self.new_explosion_list[self.frame]
+                self.rect = self.image_2.get_rect()
+                self.rect.center = self.kill_center
+
 
 class Platform(pygame.sprite.Sprite):
     def __init__(self, image, x, y):

@@ -26,6 +26,7 @@ platform_group = pygame.sprite.Group()
 missile_group = pygame.sprite.Group()
 bomb_group = pygame.sprite.Group()
 explosion_group = pygame.sprite.Group()
+big_explosion_group = pygame.sprite.Group()
 
 
 # standing_hero = (0, 0, 70, 80)
@@ -35,11 +36,10 @@ layout = sprites.Level(enemies)
 tile_list = layout.get_physical_tiles()
 bg_tile_list = layout.get_bg_tiles()
 enemy_list = layout.get_enemy_list()
-print(tile_list)
 player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
 player_group.add(player)
-enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list, player.get_info())
-#enemy_list = Enemy.get_enemies()
+enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list)
+enemies = enemy.get_enemies()
 
 
 
@@ -90,6 +90,14 @@ while playing:
                                    laser.rect.width,
                                    laser.rect.height):
                 laser.kill()
+        for enemie in enemies:
+            if enemie[1].colliderect(laser.rect.x,
+                                   laser.rect.y,
+                                   laser.rect.width,
+                                   laser.rect.height):
+                explosion = Explosion(explosion_sheet, enemy.image_rect.center)
+                laser.kill()
+                big_explosion_group.add(explosion)
 
     if bombing:
         for bomb in bomb_group:
@@ -111,9 +119,12 @@ while playing:
                 bomb.kill()
                 explosion_group.add(explosion)
     player.update(screen)
-    enemy.update()
+    info = player.get_info()
+    enemy.update(info)
     explosion_group.draw(screen)
-    explosion_group.update()
+    big_explosion_group.draw(screen)
+    explosion_group.update(1)
+    big_explosion_group.update(2)
     pg.display.flip()
 
 pg.quit()
