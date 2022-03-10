@@ -1,4 +1,6 @@
 import pygame as pg
+import pygame.sprite
+
 import sprites
 from sprites import Player, Platform, Weapons, Explosion, Enemy
 from settings import *
@@ -20,6 +22,7 @@ hero = sprites.SpriteSheet("assets/xeonsheet.bmp")
 villain = sprites.SpriteSheet("assets/xeonsheetsupah_0.bmp")
 explosion_sheet = sprites.SpriteSheet("assets/explosion.png")
 enemies = sprites.SpriteSheet("assets/ScifiCritters4 - Copy.PNG")
+print(enemies)
 
 player_group = pygame.sprite.Group()
 platform_group = pygame.sprite.Group()
@@ -27,6 +30,7 @@ missile_group = pygame.sprite.Group()
 bomb_group = pygame.sprite.Group()
 explosion_group = pygame.sprite.Group()
 big_explosion_group = pygame.sprite.Group()
+enemy_group = pygame.sprite.Group()
 
 
 # standing_hero = (0, 0, 70, 80)
@@ -36,10 +40,11 @@ layout = sprites.Level(enemies)
 tile_list = layout.get_physical_tiles()
 bg_tile_list = layout.get_bg_tiles()
 enemy_list = layout.get_enemy_list()
+print(enemy_list)
 player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
 player_group.add(player)
 enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list)
-enemies = enemy.get_enemies()
+print(enemy)
 
 
 
@@ -71,9 +76,14 @@ while playing:
                 bomb = Weapons(hero, x, y, screen, tile_list)
                 bomb_group.add(bomb)
 
-
+    enemy_group.add(enemy)
     screen.blit(bg_image, (0, 0))
     layout.update(screen)
+    player.update(screen)
+    info = player.get_info()
+    enemy.update(info)
+    enemies = enemy.get_enemies()
+    #print(enemy_group, missile_group)
 
     if shooting:
         for laser in missile_group:
@@ -118,9 +128,7 @@ while playing:
                 explosion = Explosion(explosion_sheet, bomb.bomb_rect.center)
                 bomb.kill()
                 explosion_group.add(explosion)
-    player.update(screen)
-    info = player.get_info()
-    enemy.update(info)
+    #pygame.sprite.groupcollide(missile_group, enemy_group, True, True)
     explosion_group.draw(screen)
     big_explosion_group.draw(screen)
     explosion_group.update(1)

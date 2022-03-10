@@ -260,33 +260,49 @@ class Enemy(pygame.sprite.Sprite):
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
         self.enemy_list = enemy_list
         self.image = self.tankbot_right
-        for enemy in self.enemy_list:
-            self.image_rect = enemy[1]
+        # for enemy in self.enemy_list:
+        #     self.image_rect = enemy[1]
+        self.image_rect = self.enemy_list[0][1]
+        self.image_rect_2 = self.enemy_list[1][1]
+        self.image_rect_3 = self.enemy_list[2][1]
+        self.rectangles = [self.image_rect, self.image_rect_2, self.image_rect_3]
         self.x_loc = self.image_rect.x
+        self.x_loc_2 = self.image_rect_2.x
+        self.x_loc_3 = self.image_rect_3.x
         self.right = True
         self.left = False
         self.enemies = []
-        print(enemy_list[0][1])
-        #print(self.image_rect)
     def update(self, player_info):
         dx = 0
         dy = 3
         screen_dx = 0
         self.player_info = player_info
-
-        for tile in self.tile_set:
-            if tile[1].colliderect(self.image_rect.x + dx,
-                                    self.image_rect.y,
-                                    self.image_rect.width,
-                                    self.image_rect.height):
-                dx = 0
-            if tile[1].colliderect(self.image_rect.x,
-                                    self.image_rect.y + dy,
-                                    self.image_rect.width,
-                                    self.image_rect.height):
-                dy = tile[1].top - self.image_rect.bottom
+        for rect in self.rectangles:
+            for tile in self.tile_set:
+                if tile[1].colliderect(rect.x + dx,
+                                        rect.y,
+                                        rect.width,
+                                        rect.height):
+                    dx = 0
+                if tile[1].colliderect(rect.x,
+                                        rect.y + dy,
+                                        rect.width,
+                                        rect.height):
+                    dy = tile[1].top - rect.bottom
+        # for rect in self.rectangles:
+        #     for tile in self.tile_set:
+        #         if tile[1].colliderect(self.image_rect.x + dx,
+        #                                 self.image_rect.y,
+        #                                 self.image_rect.width,
+        #                                 self.image_rect.height):
+        #             dx = 0
+        #         if tile[1].colliderect(self.image_rect.x,
+        #                                 self.image_rect.y + dy,
+        #                                 self.image_rect.width,
+        #                                 self.image_rect.height):
+        #             dy = tile[1].top - self.image_rect.bottom
         if self.right:
-            if self.image_rect.x <= self.x_loc+370:
+            if self.image_rect.x <= self.x_loc+360:
                 dx = 1
             else:
                 dx = -1
@@ -312,11 +328,12 @@ class Enemy(pygame.sprite.Sprite):
             screen_dx = 4
 
         self.x_loc += screen_dx
-        self.image_rect.x += dx
-        self.image_rect.y += dy
-        self.image_rect.x += screen_dx
-        self.enemies.append((self.image, self.image_rect))
-        self.display.blit(self.image, self.image_rect)
+        for rect in self.rectangles:
+            rect.x += dx
+            rect.y += dy
+            rect.x += screen_dx
+            self.enemies.append((self.image, rect))
+            self.display.blit(self.image, rect)
     def get_enemies(self):
         return self.enemies
 
