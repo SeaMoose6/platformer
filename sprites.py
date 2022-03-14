@@ -255,26 +255,39 @@ class Enemy(pygame.sprite.Sprite):
         self.tile_set = tile_set
         self.bg_tile_set = bg_tile_set
         self.display = display
+        self.bug_alien = self.sheet.image_at((99, 99, 31, 31), -1)
+        self.bug_alien_right = pg.transform.scale2x(self.bug_alien)
+        self.bug_alien_left = pg.transform.flip(self.bug_alien_right, True, False)
         self.tankbot = self.sheet.image_at((132, 0, 31, 31), -1)
         self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
+
         self.enemy_list = enemy_list
         self.image = self.tankbot_right
-        # for enemy in self.enemy_list:
-        #     self.image_rect = enemy[1]
         self.image_rect = self.enemy_list[0][1]
         self.image_rect_2 = self.enemy_list[1][1]
         self.image_rect_3 = self.enemy_list[2][1]
         self.rectangles = [self.image_rect, self.image_rect_2, self.image_rect_3]
+
+        self.image_2 = self.bug_alien_right
+        self.bug_rect = self.enemy_list[3][1]
+        self.bug_rect_2 = self.enemy_list[4][1]
+        self.bug_rect_3 = self.enemy_list[5][1]
+        self.bugs = [self.bug_rect, self.bug_rect_2, self.bug_rect_3]
+
         self.x_loc = self.image_rect.x
         self.x_loc_2 = self.image_rect_2.x
         self.x_loc_3 = self.image_rect_3.x
         self.right = True
         self.left = False
+        self.bug_right = True
+        self.bug_left = False
         self.enemies = []
     def update(self, player_info):
         dx = 0
         dy = 3
+        bug_dx = 5
+        bug_dy = 3
         screen_dx = 0
         self.player_info = player_info
         for rect in self.rectangles:
@@ -289,18 +302,21 @@ class Enemy(pygame.sprite.Sprite):
                                         rect.width,
                                         rect.height):
                     dy = tile[1].top - rect.bottom
-        # for rect in self.rectangles:
-        #     for tile in self.tile_set:
-        #         if tile[1].colliderect(self.image_rect.x + dx,
-        #                                 self.image_rect.y,
-        #                                 self.image_rect.width,
-        #                                 self.image_rect.height):
-        #             dx = 0
-        #         if tile[1].colliderect(self.image_rect.x,
-        #                                 self.image_rect.y + dy,
-        #                                 self.image_rect.width,
-        #                                 self.image_rect.height):
-        #             dy = tile[1].top - self.image_rect.bottom
+
+        for bug in self.bugs:
+            for tile in self.tile_set:
+                if tile[1].colliderect(rect.x + dx,
+                                        rect.y,
+                                        rect.width,
+                                        rect.height):
+                    bug_dx *= -1
+                if tile[1].colliderect(rect.x,
+                                        rect.y + dy,
+                                        rect.width,
+                                        rect.height):
+                    bug_dy = tile[1].top - rect.bottom
+                    print(bug_dy)
+
         if self.right:
             if self.image_rect.x <= self.x_loc+360:
                 dx = 1
@@ -317,6 +333,14 @@ class Enemy(pygame.sprite.Sprite):
                 self.right = True
                 self.left = False
                 self.image = self.tankbot_right
+        if bug_dx < 0:
+            self.bug_left = True
+            self.bug_right = False
+            self.image_2 = self.bug_alien_left
+        if bug_dx > 0:
+            self.bug_left = False
+            self.bug_right = True
+            self.image_2 = self.bug_alien_right
 
         if self.player_info[0] < 1100:
             pass
@@ -333,7 +357,19 @@ class Enemy(pygame.sprite.Sprite):
             rect.y += dy
             rect.x += screen_dx
             self.enemies.append((self.image, rect))
-            self.display.blit(self.image, rect)
+            if rect.y >= 5000:
+                pass
+            else:
+                self.display.blit(self.image, rect)
+        # for bug in self.bugs:
+        #     rect.x += bug_dx
+        #     rect.y += bug_dy
+        #     rect.x += screen_dx
+        #     #self.enemies.append((self.image_2, rect))
+        #     if rect.y >= 5000:
+        #         pass
+        #     else:
+        #         self.display.blit(self.image_2, rect)
     def get_enemies(self):
         return self.enemies
 
@@ -460,6 +496,9 @@ class Level:
         self.tankbot = self.sheet.image_at((132, 0, 31, 31), -1)
         self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
+        self.bug_alien = self.sheet.image_at((99, 99, 31, 31), -1)
+        self.bug_alien_right = pg.transform.scale2x(self.bug_alien)
+        self.bug_alien_left = pg.transform.flip(self.bug_alien_right, True, False)
         self.tile_list = []
         self.background_tiles = []
         self.all_tiles = []
@@ -539,7 +578,12 @@ class Level:
                     image_rect.y = y_val - 12
                     enemy = (self.tankbot_right, image_rect)
                     self.enemies.append(enemy)
-                    #self.background_tiles.append(enemy)
+                if col == "A":
+                    image_rect = self.bug_alien.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val - 50
+                    alien = (self.bug_alien_right, image_rect)
+                    self.enemies.append(alien)
 
     def update(self, display):
         self.display = display

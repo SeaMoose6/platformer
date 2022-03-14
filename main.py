@@ -40,12 +40,11 @@ layout = sprites.Level(enemies)
 tile_list = layout.get_physical_tiles()
 bg_tile_list = layout.get_bg_tiles()
 enemy_list = layout.get_enemy_list()
-print(enemy_list)
+#print(enemy_list)
 player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
 player_group.add(player)
 enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list)
-print(enemy)
-
+enemy_group.add(enemy)
 
 
 shooting = False
@@ -76,14 +75,14 @@ while playing:
                 bomb = Weapons(hero, x, y, screen, tile_list)
                 bomb_group.add(bomb)
 
-    enemy_group.add(enemy)
+
     screen.blit(bg_image, (0, 0))
     layout.update(screen)
     player.update(screen)
     info = player.get_info()
-    enemy.update(info)
     enemies = enemy.get_enemies()
-    #print(enemy_group, missile_group)
+    for enemy in enemy_group:
+        enemy.update(info)
 
     if shooting:
         for laser in missile_group:
@@ -105,9 +104,13 @@ while playing:
                                    laser.rect.y,
                                    laser.rect.width,
                                    laser.rect.height):
-                explosion = Explosion(explosion_sheet, enemy.image_rect.center)
+                explosion = Explosion(explosion_sheet, enemie[1].center)
                 laser.kill()
                 big_explosion_group.add(explosion)
+                enemie[1].y += 5000
+
+
+
 
     if bombing:
         for bomb in bomb_group:
@@ -128,6 +131,15 @@ while playing:
                 explosion = Explosion(explosion_sheet, bomb.bomb_rect.center)
                 bomb.kill()
                 explosion_group.add(explosion)
+        for enemie in enemies:
+            if enemie[1].colliderect(bomb.bomb_rect.x,
+                                     bomb.bomb_rect.y,
+                                     bomb.bomb_rect.width,
+                                     bomb.bomb_rect.height):
+                explosion = Explosion(explosion_sheet, enemie[1].center)
+                bomb.kill()
+                big_explosion_group.add(explosion)
+                enemie[1].y += 5000
     #pygame.sprite.groupcollide(missile_group, enemy_group, True, True)
     explosion_group.draw(screen)
     big_explosion_group.draw(screen)
