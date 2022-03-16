@@ -271,9 +271,11 @@ class Enemy(pygame.sprite.Sprite):
 
         self.image_2 = self.bug_alien_right
         self.bug_rect = self.enemy_list[3][1]
+        #self.bug_rect.y = 800
         self.bug_rect_2 = self.enemy_list[4][1]
         self.bug_rect_3 = self.enemy_list[5][1]
-        self.bugs = [self.bug_rect, self.bug_rect_2, self.bug_rect_3]
+        self.bugs = [self.bug_rect]
+        #self.bug_rect_2, self.bug_rect_3
 
         self.x_loc = self.image_rect.x
         self.x_loc_2 = self.image_rect_2.x
@@ -293,29 +295,31 @@ class Enemy(pygame.sprite.Sprite):
         for rect in self.rectangles:
             for tile in self.tile_set:
                 if tile[1].colliderect(rect.x + dx,
-                                        rect.y,
-                                        rect.width,
-                                        rect.height):
+                                       rect.y,
+                                       rect.width,
+                                       rect.height):
                     dx = 0
                 if tile[1].colliderect(rect.x,
-                                        rect.y + dy,
-                                        rect.width,
-                                        rect.height):
+                                       rect.y + dy,
+                                       rect.width,
+                                       rect.height):
                     dy = tile[1].top - rect.bottom
+                    #print(dy)
 
         for bug in self.bugs:
             for tile in self.tile_set:
-                if tile[1].colliderect(rect.x + dx,
-                                        rect.y,
-                                        rect.width,
-                                        rect.height):
+                if tile[1].colliderect(bug.x + bug_dx,
+                                       bug.y,
+                                       bug.width,
+                                       bug.height):
                     bug_dx *= -1
-                if tile[1].colliderect(rect.x,
-                                        rect.y + dy,
-                                        rect.width,
-                                        rect.height):
-                    bug_dy = tile[1].top - rect.bottom
-                    print(bug_dy)
+                if tile[1].colliderect(bug.x,
+                                       bug.y + bug_dy,
+                                       bug.width,
+                                       bug.height):
+                    bug_dy = tile[1].top - bug.bottom
+                    bug_dy += 6
+                    #print(bug_dy)
 
         if self.right:
             if self.image_rect.x <= self.x_loc+360:
@@ -361,15 +365,18 @@ class Enemy(pygame.sprite.Sprite):
                 pass
             else:
                 self.display.blit(self.image, rect)
-        # for bug in self.bugs:
-        #     rect.x += bug_dx
-        #     rect.y += bug_dy
-        #     rect.x += screen_dx
-        #     #self.enemies.append((self.image_2, rect))
-        #     if rect.y >= 5000:
-        #         pass
-        #     else:
-        #         self.display.blit(self.image_2, rect)
+        for bug in self.bugs:
+            print(bug.x, bug.y)
+            bug.x += bug_dx
+            bug.y += bug_dy
+            bug.x += screen_dx
+            self.enemies.append((self.image_2, bug))
+            self.display.blit(self.image_2, bug)
+            if bug.y >= 5000:
+                pass
+            # else:
+            #     self.display.blit(self.image_2, bug)
+
     def get_enemies(self):
         return self.enemies
 
@@ -443,7 +450,7 @@ class Explosion(pygame.sprite.Sprite):
             if current - self.previous_update > self.frame_rate:
                 self.previous_update = current
                 self.frame += 1
-            if self.frame == len(self.EXPLOSION_LIST):
+            elif self.frame == len(self.EXPLOSION_LIST):
                 self.kill()
             else:
                 self.image = self.EXPLOSION_LIST[self.frame]
@@ -454,7 +461,7 @@ class Explosion(pygame.sprite.Sprite):
             if current - self.previous_update > self.frame_rate:
                 self.previous_update = current
                 self.frame += 1
-            if self.frame == len(self.new_explosion_list):
+            elif self.frame == len(self.new_explosion_list):
                 self.kill()
             else:
                 self.image = self.new_explosion_list[self.frame]
@@ -581,7 +588,7 @@ class Level:
                 if col == "A":
                     image_rect = self.bug_alien.get_rect()
                     image_rect.x = x_val
-                    image_rect.y = y_val - 50
+                    image_rect.y = y_val - 100
                     alien = (self.bug_alien_right, image_rect)
                     self.enemies.append(alien)
 

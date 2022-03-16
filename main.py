@@ -81,8 +81,7 @@ while playing:
     player.update(screen)
     info = player.get_info()
     enemies = enemy.get_enemies()
-    for enemy in enemy_group:
-        enemy.update(info)
+    enemy.update(info)
 
     if shooting:
         for laser in missile_group:
@@ -94,16 +93,16 @@ while playing:
                                    laser.rect.width,
                                    laser.rect.height):
                 laser.kill()
-            if tile[1].colliderect(laser.rect.x,
-                                   laser.rect.y,
-                                   laser.rect.width,
-                                   laser.rect.height):
+            elif tile[1].colliderect(laser.rect.x,
+                                     laser.rect.y,
+                                     laser.rect.width,
+                                     laser.rect.height):
                 laser.kill()
         for enemie in enemies:
             if enemie[1].colliderect(laser.rect.x,
-                                   laser.rect.y,
-                                   laser.rect.width,
-                                   laser.rect.height):
+                                     laser.rect.y,
+                                     laser.rect.width,
+                                     laser.rect.height):
                 explosion = Explosion(explosion_sheet, enemie[1].center)
                 laser.kill()
                 big_explosion_group.add(explosion)
@@ -124,7 +123,7 @@ while playing:
                 explosion = Explosion(explosion_sheet, bomb.bomb_rect.center)
                 bomb.kill()
                 explosion_group.add(explosion)
-            if tile[1].colliderect(bomb.bomb_rect.x,
+            elif tile[1].colliderect(bomb.bomb_rect.x,
                                    bomb.bomb_rect.y,
                                    bomb.bomb_rect.width,
                                    bomb.bomb_rect.height):
