@@ -256,8 +256,8 @@ class Enemy(pygame.sprite.Sprite):
         self.bg_tile_set = bg_tile_set
         self.display = display
         self.bug_alien = self.sheet.image_at((99, 99, 31, 31), -1)
-        self.bug_alien_right = pg.transform.scale2x(self.bug_alien)
-        self.bug_alien_left = pg.transform.flip(self.bug_alien_right, True, False)
+        self.bug_alien_left = pg.transform.scale2x(self.bug_alien)
+        self.bug_alien_right = pg.transform.flip(self.bug_alien_left, True, False)
         self.tankbot = self.sheet.image_at((132, 0, 31, 31), -1)
         self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
@@ -313,12 +313,13 @@ class Enemy(pygame.sprite.Sprite):
                                        bug.width,
                                        bug.height):
                     bug_dx *= -1
+                    print(bug_dx)
                 if tile[1].colliderect(bug.x,
-                                       bug.y + bug_dy,
+                                       bug.y + bug_dy*10,
                                        bug.width,
                                        bug.height):
-                    bug_dy = tile[1].top - bug.bottom
-                    bug_dy += 6
+                    bug_dy = 0
+                    #bug_dy += 6
                     #print(bug_dy)
 
         if self.right:
@@ -341,7 +342,7 @@ class Enemy(pygame.sprite.Sprite):
             self.bug_left = True
             self.bug_right = False
             self.image_2 = self.bug_alien_left
-        if bug_dx > 0:
+        elif bug_dx > 1:
             self.bug_left = False
             self.bug_right = True
             self.image_2 = self.bug_alien_right
@@ -366,7 +367,7 @@ class Enemy(pygame.sprite.Sprite):
             else:
                 self.display.blit(self.image, rect)
         for bug in self.bugs:
-            print(bug.x, bug.y)
+            #print(bug.x, bug.y)
             bug.x += bug_dx
             bug.y += bug_dy
             bug.x += screen_dx
