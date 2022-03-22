@@ -271,11 +271,9 @@ class Enemy(pygame.sprite.Sprite):
 
         self.image_2 = self.bug_alien_right
         self.bug_rect = self.enemy_list[3][1]
-        #self.bug_rect.y = 800
         self.bug_rect_2 = self.enemy_list[4][1]
         self.bug_rect_3 = self.enemy_list[5][1]
         self.bugs = [self.bug_rect]
-        #self.bug_rect_2, self.bug_rect_3
 
         self.x_loc = self.image_rect.x
         self.x_loc_2 = self.image_rect_2.x
@@ -285,64 +283,64 @@ class Enemy(pygame.sprite.Sprite):
         self.bug_right = True
         self.bug_left = False
         self.enemies = []
+        self.dx = 0
+        self.dy = 3
+        self.bug_dx = 5
+        self.bug_dy = 3
     def update(self, player_info):
-        dx = 0
-        dy = 3
-        bug_dx = 5
-        bug_dy = 3
         screen_dx = 0
         self.player_info = player_info
         for rect in self.rectangles:
             for tile in self.tile_set:
-                if tile[1].colliderect(rect.x + dx,
+                if tile[1].colliderect(rect.x + self.dx,
                                        rect.y,
                                        rect.width,
                                        rect.height):
-                    dx = 0
+                    self.dx = 0
                 if tile[1].colliderect(rect.x,
-                                       rect.y + dy,
+                                       rect.y + self.dy,
                                        rect.width,
                                        rect.height):
-                    dy = tile[1].top - rect.bottom
-                    #print(dy)
+                    self.dy = tile[1].top - rect.bottom
 
         for bug in self.bugs:
             for tile in self.tile_set:
-                if tile[1].colliderect(bug.x + bug_dx,
+                if tile[1].colliderect(bug.x + self.bug_dx,
                                        bug.y,
                                        bug.width,
                                        bug.height):
-                    bug_dx *= -1
-                    print(bug_dx)
+                    bug_current_collied = pygame.time.get_ticks()
+                    if bug_current_collied - bug_previous_collied > BUG_DELAY:
+                        pass
+                        self.bug_dx *= -1
                 if tile[1].colliderect(bug.x,
-                                       bug.y + bug_dy*10,
+                                       bug.y + self.bug_dy*10,
                                        bug.width,
                                        bug.height):
-                    bug_dy = 0
-                    #bug_dy += 6
-                    #print(bug_dy)
+                    self.bug_dy = 0
+
 
         if self.right:
             if self.image_rect.x <= self.x_loc+360:
-                dx = 1
+                self.dx = 1
             else:
-                dx = -1
+                self.dx = -1
                 self.right = False
                 self.left = True
                 self.image = self.tankbot_left
         if self.left:
             if self.image_rect.x >= self.x_loc-90:
-                dx = -1
+                self.dx = -1
             else:
-                dx = 1
+                self.dx = 1
                 self.right = True
                 self.left = False
                 self.image = self.tankbot_right
-        if bug_dx < 0:
+        if self.bug_dx < 0:
             self.bug_left = True
             self.bug_right = False
             self.image_2 = self.bug_alien_left
-        elif bug_dx > 1:
+        elif self.bug_dx > 0:
             self.bug_left = False
             self.bug_right = True
             self.image_2 = self.bug_alien_right
@@ -358,8 +356,8 @@ class Enemy(pygame.sprite.Sprite):
 
         self.x_loc += screen_dx
         for rect in self.rectangles:
-            rect.x += dx
-            rect.y += dy
+            rect.x += self.dx
+            rect.y += self.dy
             rect.x += screen_dx
             self.enemies.append((self.image, rect))
             if rect.y >= 5000:
@@ -367,16 +365,15 @@ class Enemy(pygame.sprite.Sprite):
             else:
                 self.display.blit(self.image, rect)
         for bug in self.bugs:
-            #print(bug.x, bug.y)
-            bug.x += bug_dx
-            bug.y += bug_dy
+            bug.x += self.bug_dx
+            bug.y += self.bug_dy
             bug.x += screen_dx
             self.enemies.append((self.image_2, bug))
-            self.display.blit(self.image_2, bug)
+            #self.display.blit(self.image_2, bug)
             if bug.y >= 5000:
                 pass
-            # else:
-            #     self.display.blit(self.image_2, bug)
+            else:
+                self.display.blit(self.image_2, bug)
 
     def get_enemies(self):
         return self.enemies

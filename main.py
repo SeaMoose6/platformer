@@ -43,6 +43,7 @@ enemy_list = layout.get_enemy_list()
 #print(enemy_list)
 player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
 player_group.add(player)
+print(player)
 enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list)
 enemy_group.add(enemy)
 
@@ -68,6 +69,7 @@ while playing:
                 y = player.get_info()[1]
                 laser = Weapons(hero, x, y, screen, tile_list)
                 missile_group.add(laser)
+                print(laser)
             if event.key == pg.K_r:
                 bombing = True
                 x = player.get_info()[0]
@@ -107,6 +109,14 @@ while playing:
                 laser.kill()
                 big_explosion_group.add(explosion)
                 enemie[1].y += 5000
+    #pygame.sprite.spritecollide(player, enemy_group, True)
+
+    for enemie in enemies:
+        if enemie[1].colliderect(player.image_rect.x,
+                                 player.image_rect.y,
+                                 player.image_rect.width,
+                                 player.image_rect.height):
+            player.image_rect.y += 5000
 
 
 
