@@ -6,6 +6,8 @@ from sprites import Player, Platform, Weapons, Explosion, Enemy
 from settings import *
 
 pg.init()
+
+
 def start_screen():
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption("Space Pirates")
@@ -29,11 +31,10 @@ def start_screen():
         screen.blit(start_text_2, (175, 500))
         screen.blit(start_text_3, (350, 700))
 
-
-
         pygame.display.flip()
 
         clock.tick(FPS)
+
 
 def game_over():
     screen = pygame.display.set_mode(SIZE)
@@ -59,16 +60,13 @@ def game_over():
         start_text_3 = FONT.render("press SPACE to play again", True, WHITE)
         screen.blit(start_text_3, (350, 700))
 
-
         pygame.display.flip()
         clock.tick(FPS)
 def play():
-    #bg_image = pg.image.load("assets/centaur_bridge.png")
-    #bg_image = pg.image.load("assets/oie_18154314jgX7zpnN.jpg")
+
     bg_image = pg.image.load("assets/sci_fi_bg1.jpg")
     bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
-    # Set Base Screen
     screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
     pg.display.set_caption("Gunner Game")
 
@@ -88,21 +86,15 @@ def play():
     big_explosion_group = pygame.sprite.Group()
     enemy_group = pygame.sprite.Group()
 
-
-    # standing_hero = (0, 0, 70, 80)
-    # shooting_hero = (535, 160, 100, 80)
-    # shooting_villain = (535, 160, 100, 80)
     layout = sprites.Level(enemies)
     tile_list = layout.get_physical_tiles()
     bg_tile_list = layout.get_bg_tiles()
     enemy_list = layout.get_enemy_list()
-    #print(enemy_list)
     player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
     player_group.add(player)
     print(player)
     enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list)
     enemy_group.add(enemy)
-
 
     shooting = False
     bombing = False
@@ -132,7 +124,6 @@ def play():
                     y = player.get_info()[1]
                     bomb = Weapons(hero, x, y, screen, tile_list)
                     bomb_group.add(bomb)
-
 
         screen.blit(bg_image, (0, 0))
         layout.update(screen)
@@ -165,7 +156,6 @@ def play():
                     laser.kill()
                     big_explosion_group.add(explosion)
                     enemie[1].y += 5000
-        #pygame.sprite.spritecollide(player, enemy_group, True)
 
         for enemie in enemies:
             if enemie[1].colliderect(player.image_rect.x,
@@ -173,9 +163,7 @@ def play():
                                      player.image_rect.width,
                                      player.image_rect.height):
                 player.image_rect.y += 5000
-
-
-
+                playing = False
 
         if bombing:
             for bomb in bomb_group:
@@ -205,7 +193,7 @@ def play():
                     bomb.kill()
                     big_explosion_group.add(explosion)
                     enemie[1].y += 5000
-        #pygame.sprite.groupcollide(missile_group, enemy_group, True, True)
+
         explosion_group.draw(screen)
         big_explosion_group.draw(screen)
         explosion_group.update(1)
@@ -214,7 +202,7 @@ def play():
 
         clock.tick(FPS)
 
-#start_screen()
+start_screen()
 
 while True:
     play()

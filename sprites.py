@@ -4,6 +4,7 @@ from settings import *
 
 import pygame as pg
 
+
 class SpriteSheet:
 
     def __init__(self, filename):
@@ -46,10 +47,10 @@ class SpriteSheet:
             x_sprite_size = width
             y_sprite_size = height
         else:
-            x_sprite_size = ( sheet_width - 2 * x_margin
-                    - (num_cols - 1) * x_padding ) / num_cols
-            y_sprite_size = ( sheet_height - 2 * y_margin
-                    - (num_rows - 1) * y_padding ) / num_rows
+            x_sprite_size = (sheet_width - 2 * x_margin
+                    - (num_cols - 1) * x_padding) / num_cols
+            y_sprite_size = (sheet_height - 2 * y_margin
+                    - (num_rows - 1) * y_padding) / num_rows
 
         sprite_rects = []
         for row_num in range(num_rows):
@@ -62,6 +63,7 @@ class SpriteSheet:
                 sprite_rects.append(sprite_rect)
 
         return self.images_at(sprite_rects, colorkey)
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, tile_size, tile_set, bg_tile_set):
@@ -82,8 +84,8 @@ class Player(pygame.sprite.Sprite):
         self.shooting_left = pg.transform.flip(self.shooting_right, True, False)
         self.bombing_right = sheet.image_at((260, 670, 63, 64), -1)
         self.bombing_left = pg.transform.flip(self.bombing_right, True, False)
-        self.run_right = [self.sheet.image_at((23, 174, 51, 65), -1), self.sheet.image_at((106, 175, 51, 65), -1),  self.sheet.image_at((182, 175, 51, 65), -1), self.sheet.image_at((257, 175, 51, 65), -1),
-                         ]
+        self.run_right = [self.sheet.image_at((23, 174, 51, 65), -1), self.sheet.image_at((106, 175, 51, 65), -1),
+                          self.sheet.image_at((182, 175, 51, 65), -1), self.sheet.image_at((257, 175, 51, 65), -1)]
         self.run_left = [pg.transform.flip(player, True, False) for player in self.run_right]
         self.image = self.standing_right
         self.frame = 0
@@ -193,14 +195,14 @@ class Player(pygame.sprite.Sprite):
                                            tile[1].height):
                 tile_dx = 0
             if tile[1].colliderect(self.image_rect.x + dx,
-                                    self.image_rect.y,
-                                    self.image_rect.width,
-                                    self.image_rect.height):
+                                   self.image_rect.y,
+                                   self.image_rect.width,
+                                   self.image_rect.height):
                 dx = 0
             if tile[1].colliderect(self.image_rect.x,
-                                    self.image_rect.y + dy,
-                                    self.image_rect.width,
-                                    self.image_rect.height):
+                                   self.image_rect.y + dy,
+                                   self.image_rect.width,
+                                   self.image_rect.height):
 
                 if self.jumping:
                     dy = tile[1].bottom - self.image_rect.top
@@ -244,9 +246,11 @@ class Player(pygame.sprite.Sprite):
         if self.image_rect.left <= self.tile_size:
             self.image_rect.left = self.tile_size
         display.blit(self.image, (self.image_rect.x, self.image_rect.y))
-        #pygame.draw.rect(display, WHITE, self.image_rect, 2)
+
     def get_info(self):
         return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing, self.right, self.left, self.walking
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, sheet, tile_size, tile_set, bg_tile_set, display, enemy_list):
         pygame.sprite.Sprite.__init__(self)
@@ -287,6 +291,7 @@ class Enemy(pygame.sprite.Sprite):
         self.dy = 3
         self.bug_dx = 5
         self.bug_dy = 3
+
     def update(self, player_info):
         screen_dx = 0
         self.player_info = player_info
@@ -318,7 +323,6 @@ class Enemy(pygame.sprite.Sprite):
                                        bug.width,
                                        bug.height):
                     self.bug_dy = 0
-
 
         if self.right:
             if self.image_rect.x <= self.x_loc+360:
@@ -369,7 +373,6 @@ class Enemy(pygame.sprite.Sprite):
             bug.y += self.bug_dy
             bug.x += screen_dx
             self.enemies.append((self.image_2, bug))
-            #self.display.blit(self.image_2, bug)
             if bug.y >= 5000:
                 pass
             else:
@@ -377,6 +380,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def get_enemies(self):
         return self.enemies
+
 
 class Weapons(pygame.sprite.Sprite):
     def __init__(self, sheet, x, y, display, tile_set):
@@ -404,34 +408,37 @@ class Weapons(pygame.sprite.Sprite):
         self.bomb_rect.y = self.y
 
     def laser_update(self, right, left):
-        if right == True:
+        if right:
             if self.x < self.rect.centerx < self.x+40:
                 self.velo = 5
                 self.image = self.laser_right
-        if left == True:
+        if left:
             if self.x < self.rect.centerx < self.x + 40:
                 self.velo = -5
                 self.image = self.laser_left
         self.rect.x += self.velo
         self.display.blit(self.image, (self.rect.x, self.rect.y))
+
     def bomb_update(self, right, left):
-        if right == True:
+        if right:
             if self.x < self.bomb_rect.centerx < self.x+40:
                 self.velo = 3
                 self.bomb_image = self.bomb_right
-        if left == True:
+        if left:
             if self.x < self.bomb_rect.centerx < self.x + 40:
                 self.velo = -3
                 self.bomb_image = self.bomb_left
         self.bomb_rect.x += self.velo
         self.display.blit(self.bomb_image, (self.bomb_rect.x, self.bomb_rect.y))
 
+
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, sheet, center):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
-        self.EXPLOSION_LIST = [self.sheet.image_at((0, 0, 31, 31), -1), self.sheet.image_at((32, 0, 31, 31), -1), self.sheet.image_at((65, 0, 31, 31), -1),
-                          self.sheet.image_at((96, 0, 31, 31), -1),self.sheet.image_at((128, 0, 31, 31), -1), self.sheet.image_at((160, 0, 31, 31), -1)]
+        self.EXPLOSION_LIST = [self.sheet.image_at((0, 0, 31, 31), -1), self.sheet.image_at((32, 0, 31, 31), -1),
+                               self.sheet.image_at((65, 0, 31, 31), -1), self.sheet.image_at((96, 0, 31, 31), -1),
+                               self.sheet.image_at((128, 0, 31, 31), -1), self.sheet.image_at((160, 0, 31, 31), -1)]
         self.new_explosion_list = [pg.transform.scale2x(explosion) for explosion in self.EXPLOSION_LIST]
         self.image = self.EXPLOSION_LIST[0]
         self.image_2 = self.new_explosion_list[0]
@@ -476,6 +483,8 @@ class Platform(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.x, self.y
         self.change_x = 0
+
+
 class Level:
     def __init__(self, sheet):
         pygame.sprite.Sprite.__init__(self)
@@ -511,7 +520,7 @@ class Level:
 
         for i, row in enumerate(LAYOUT):
             for j, col in enumerate(row):
-                x_val = j * TILE_SIZE - 1500
+                x_val = j * TILE_SIZE
                 y_val = i * TILE_SIZE
 
                 if col == "1":
@@ -598,13 +607,15 @@ class Level:
             self.display.blit(tile[0], tile[1])
         for tile in self.all_tiles:
             self.display.blit(tile[0], tile[1])
-        # for enemy in self.enemies:
-        #     self.display.blit(enemy[0], enemy[1])
+
     def get_physical_tiles(self):
         return self.tile_list
+
     def get_all_tiles(self):
         return self.all_tiles
+
     def get_bg_tiles(self):
         return self.background_tiles
+
     def get_enemy_list(self):
         return self.enemies
