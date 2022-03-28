@@ -9,6 +9,9 @@ pg.init()
 
 
 def start_screen():
+    bg_image = pg.image.load("assets/oie_18154314jgX7zpnN.jpg")
+    bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
+
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption("Space Pirates")
 
@@ -23,9 +26,10 @@ def start_screen():
                 if event.key == pygame.K_SPACE:
                     running = False
 
-        screen.fill(BLACK)
-        start_text = BIG_FONT.render("SPACE", True, RED)
-        start_text_2 = BIG_FONT.render("PIRATES", True, RED)
+        screen.blit(bg_image, (0, 0))
+
+        start_text = BIG_FONT.render("SPACE", True, BLACK)
+        start_text_2 = BIG_FONT.render("PIRATES", True, BLACK)
         start_text_3 = FONT.render("press SPACE to start", True, WHITE)
         screen.blit(start_text, (275, 300))
         screen.blit(start_text_2, (175, 500))

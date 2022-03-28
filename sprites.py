@@ -112,7 +112,7 @@ class Player(pygame.sprite.Sprite):
         mouse = pygame.mouse.get_pressed()
         if keys[pygame.K_d]:
             if self.image_rect.x < 1100:
-                dx = 4
+                dx = 8
                 self.right = True
                 self.left = False
                 now = pygame.time.get_ticks()
@@ -123,7 +123,7 @@ class Player(pygame.sprite.Sprite):
                     self.image = self.run_right[self.frame]
                     self.frame = self.frame + 1
             else:
-                tile_dx = -4
+                tile_dx = -8
                 self.right = True
                 self.left = False
                 self.walking = True
@@ -137,7 +137,7 @@ class Player(pygame.sprite.Sprite):
 
         elif keys[pygame.K_a]:
             if self.image_rect.x > 300:
-                dx = -4
+                dx = -8
                 self.right = False
                 self.left = True
                 now = pygame.time.get_ticks()
@@ -148,7 +148,7 @@ class Player(pygame.sprite.Sprite):
                     self.image = self.run_left[self.frame]
                     self.frame = self.frame + 1
             else:
-                tile_dx = 4
+                tile_dx = 8
                 self.right = False
                 self.left = True
                 self.walking = True
@@ -289,7 +289,7 @@ class Enemy(pygame.sprite.Sprite):
         self.enemies = []
         self.dx = 0
         self.dy = 3
-        self.bug_dx = 5
+        self.bug_dx = 10
         self.bug_dy = 3
 
     def update(self, player_info):
@@ -326,17 +326,17 @@ class Enemy(pygame.sprite.Sprite):
 
         if self.right:
             if self.image_rect.x <= self.x_loc+360:
-                self.dx = 1
+                self.dx = 3
             else:
-                self.dx = -1
+                self.dx = -3
                 self.right = False
                 self.left = True
                 self.image = self.tankbot_left
         if self.left:
             if self.image_rect.x >= self.x_loc-90:
-                self.dx = -1
+                self.dx = -3
             else:
-                self.dx = 1
+                self.dx = 3
                 self.right = True
                 self.left = False
                 self.image = self.tankbot_right
@@ -352,11 +352,11 @@ class Enemy(pygame.sprite.Sprite):
         if self.player_info[0] < 1100:
             pass
         elif self.player_info[0] > 1100 and self.player_info[6]:
-            screen_dx = -4
+            screen_dx = -8
         if self.player_info[0] > 300:
             pass
         elif self.player_info[0] < 300 and self.player_info[6]:
-            screen_dx = 4
+            screen_dx = 8
 
         self.x_loc += screen_dx
         for rect in self.rectangles:
@@ -410,11 +410,11 @@ class Weapons(pygame.sprite.Sprite):
     def laser_update(self, right, left):
         if right:
             if self.x < self.rect.centerx < self.x+40:
-                self.velo = 5
+                self.velo = 10
                 self.image = self.laser_right
         if left:
             if self.x < self.rect.centerx < self.x + 40:
-                self.velo = -5
+                self.velo = -10
                 self.image = self.laser_left
         self.rect.x += self.velo
         self.display.blit(self.image, (self.rect.x, self.rect.y))
@@ -422,11 +422,11 @@ class Weapons(pygame.sprite.Sprite):
     def bomb_update(self, right, left):
         if right:
             if self.x < self.bomb_rect.centerx < self.x+40:
-                self.velo = 3
+                self.velo = 6
                 self.bomb_image = self.bomb_right
         if left:
             if self.x < self.bomb_rect.centerx < self.x + 40:
-                self.velo = -3
+                self.velo = -6
                 self.bomb_image = self.bomb_left
         self.bomb_rect.x += self.velo
         self.display.blit(self.bomb_image, (self.bomb_rect.x, self.bomb_rect.y))

@@ -32,7 +32,7 @@ SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
 bug_previous_collied = pygame.time.get_ticks()
 BUG_DELAY = 100
 
-FPS = 120
+FPS = 60
 
 TILE_SIZE = 50
 '''
