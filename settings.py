@@ -21,6 +21,8 @@ WIN_WIDTH = 800
 WIN_HEIGHT = 600
 TILE_SIZE = 50
 
+SCORE = 0
+
 #FONT = pygame.font.Font("assets/unifont.ttf", 25)
 #BIG_FONT = pygame.font.Font("assets/unifont.ttf", 150)
 PI = math.pi

@@ -112,7 +112,7 @@ class Player(pygame.sprite.Sprite):
         mouse = pygame.mouse.get_pressed()
         if keys[pygame.K_d]:
             if self.image_rect.x < 1100:
-                dx = 8
+                dx = 15
                 self.right = True
                 self.left = False
                 now = pygame.time.get_ticks()
@@ -123,7 +123,7 @@ class Player(pygame.sprite.Sprite):
                     self.image = self.run_right[self.frame]
                     self.frame = self.frame + 1
             else:
-                tile_dx = -8
+                tile_dx = -15
                 self.right = True
                 self.left = False
                 self.walking = True
@@ -137,7 +137,7 @@ class Player(pygame.sprite.Sprite):
 
         elif keys[pygame.K_a]:
             if self.image_rect.x > 300:
-                dx = -8
+                dx = -15
                 self.right = False
                 self.left = True
                 now = pygame.time.get_ticks()
@@ -148,7 +148,7 @@ class Player(pygame.sprite.Sprite):
                     self.image = self.run_left[self.frame]
                     self.frame = self.frame + 1
             else:
-                tile_dx = 8
+                tile_dx = 15
                 self.right = False
                 self.left = True
                 self.walking = True
@@ -168,19 +168,19 @@ class Player(pygame.sprite.Sprite):
             elif self.left:
                 self.image = self.standing_left
         if keys[pygame.K_SPACE] and not self.jumping and not self.falling:
-            self.velo_y = -10
+            self.velo_y = -14
             self.jumping = True
         if not keys[pygame.K_SPACE]:
             self.jumping = False
-        self.velo_y += 0.3
+        self.velo_y += 0.4
         if self.velo_y < 0:
             self.jumping = True
             self.falling = False
         else:
             self.jumping = False
             self.falling = True
-        if self.velo_y >= 5:
-            self.velo_y = 5
+        if self.velo_y >= 10:
+            self.velo_y = 10
             dy = 5
         if self.jumping and self.right:
             self.image = self.jumping_right
@@ -235,7 +235,7 @@ class Player(pygame.sprite.Sprite):
 
         self.image_rect.x += dx
         self.image_rect.y += dy
-
+        #print(tile_dx)
         for tile in self.tile_set:
             tile_rect = tile[1]
             tile_rect.x += tile_dx
@@ -352,12 +352,12 @@ class Enemy(pygame.sprite.Sprite):
         if self.player_info[0] < 1100:
             pass
         elif self.player_info[0] > 1100 and self.player_info[6]:
-            screen_dx = -8
+            screen_dx = -15
         if self.player_info[0] > 300:
             pass
         elif self.player_info[0] < 300 and self.player_info[6]:
-            screen_dx = 8
-
+            screen_dx = 15
+        print(screen_dx)
         self.x_loc += screen_dx
         for rect in self.rectangles:
             rect.x += self.dx

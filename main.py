@@ -6,7 +6,7 @@ from sprites import Player, Platform, Weapons, Explosion, Enemy
 from settings import *
 
 pg.init()
-
+SCORE = 0
 
 def start_screen():
     bg_image = pg.image.load("assets/oie_18154314jgX7zpnN.jpg")
@@ -23,17 +23,17 @@ def start_screen():
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_p:
                     running = False
 
         screen.blit(bg_image, (0, 0))
 
         start_text = BIG_FONT.render("SPACE", True, BLACK)
         start_text_2 = BIG_FONT.render("PIRATES", True, BLACK)
-        start_text_3 = FONT.render("press SPACE to start", True, WHITE)
-        screen.blit(start_text, (275, 300))
-        screen.blit(start_text_2, (175, 500))
-        screen.blit(start_text_3, (350, 700))
+        start_text_3 = FONT.render("press \"p\" to start", True, WHITE)
+        screen.blit(start_text, (240, 400))
+        screen.blit(start_text_2, (640, 400))
+        screen.blit(start_text_3, (550, 700))
 
         pygame.display.flip()
 
@@ -57,16 +57,18 @@ def game_over():
 
         screen.fill(BLACK)
         text = BIG_FONT.render(f"GAME OVER", True, RED)
-        text_2 = FONT.render(f"Score:", True, WHITE)
-        screen.blit(text, (200, 400))
-        screen.blit(text_2, (415, 600))
+        text_2 = FONT.render(f"Score:{SCORE}", True, WHITE)
+        screen.blit(text, (300, 400))
+        screen.blit(text_2, (560, 600))
 
         start_text_3 = FONT.render("press SPACE to play again", True, WHITE)
-        screen.blit(start_text_3, (350, 700))
+        screen.blit(start_text_3, (500, 700))
 
         pygame.display.flip()
         clock.tick(FPS)
 def play():
+
+    global SCORE
 
     bg_image = pg.image.load("assets/sci_fi_bg1.jpg")
     bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
@@ -160,6 +162,8 @@ def play():
                     laser.kill()
                     big_explosion_group.add(explosion)
                     enemie[1].y += 5000
+                    SCORE += 1
+
 
         for enemie in enemies:
             if enemie[1].colliderect(player.image_rect.x,
