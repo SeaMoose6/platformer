@@ -168,7 +168,7 @@ class Player(pygame.sprite.Sprite):
             elif self.left:
                 self.image = self.standing_left
         if keys[pygame.K_SPACE] and not self.jumping and not self.falling:
-            self.velo_y = -14
+            self.velo_y = -12
             self.jumping = True
         if not keys[pygame.K_SPACE]:
             self.jumping = False
@@ -246,9 +246,11 @@ class Player(pygame.sprite.Sprite):
         if self.image_rect.left <= self.tile_size:
             self.image_rect.left = self.tile_size
         display.blit(self.image, (self.image_rect.x, self.image_rect.y))
+        self.tile_dx = tile_dx
 
     def get_info(self):
-        return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing, self.right, self.left, self.walking
+        return self.image_rect.x, self.image_rect.y, self.shooting, self.bombing, \
+               self.right, self.left, self.walking, self.tile_dx
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -287,6 +289,7 @@ class Enemy(pygame.sprite.Sprite):
         self.bug_right = True
         self.bug_left = False
         self.enemies = []
+        self.key = []
         self.dx = 0
         self.dy = 3
         self.bug_dx = 10
@@ -349,15 +352,15 @@ class Enemy(pygame.sprite.Sprite):
             self.bug_right = True
             self.image_2 = self.bug_alien_right
 
-        if self.player_info[0] < 1100:
-            pass
-        elif self.player_info[0] > 1100 and self.player_info[6]:
-            screen_dx = -15
-        if self.player_info[0] > 300:
-            pass
-        elif self.player_info[0] < 300 and self.player_info[6]:
-            screen_dx = 15
-        print(screen_dx)
+        # if self.player_info[0] < 1100:
+        #     pass
+        # elif self.player_info[0] > 1100 and self.player_info[6]:
+        #     screen_dx = -15
+        # if self.player_info[0] > 300:
+        #     pass
+        # elif self.player_info[0] < 300 and self.player_info[6]:
+        #     screen_dx = 15
+        screen_dx = player_info[7]
         self.x_loc += screen_dx
         for rect in self.rectangles:
             rect.x += self.dx
@@ -372,14 +375,14 @@ class Enemy(pygame.sprite.Sprite):
             bug.x += self.bug_dx
             bug.y += self.bug_dy
             bug.x += screen_dx
-            self.enemies.append((self.image_2, bug))
+            self.key.append((self.image_2, bug))
             if bug.y >= 5000:
                 pass
             else:
                 self.display.blit(self.image_2, bug)
 
     def get_enemies(self):
-        return self.enemies
+        return self.enemies, self.key
 
 
 class Weapons(pygame.sprite.Sprite):
@@ -507,6 +510,10 @@ class Level:
         blue_bottom2 = pg.transform.scale(blue_bottom2, (TILE_SIZE, TILE_SIZE))
         blue_wall = pg.image.load("assets/tile087.png")
         blue_wall = pg.transform.scale(blue_wall, (TILE_SIZE, TILE_SIZE))
+        key_door = pg.image.load("assets/door_surp.png")
+        key_door = pg.transform.scale(key_door, (TILE_SIZE*2, TILE_SIZE*2))
+        key_block = pg.image.load("assets/tile125.png")
+        key_block = pg.transform.scale(key_block, (TILE_SIZE, TILE_SIZE))
         self.tankbot = self.sheet.image_at((132, 0, 31, 31), -1)
         self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
@@ -517,6 +524,7 @@ class Level:
         self.background_tiles = []
         self.all_tiles = []
         self.enemies = []
+        self.key_tiles = []
 
         for i, row in enumerate(LAYOUT):
             for j, col in enumerate(row):
@@ -598,14 +606,37 @@ class Level:
                     image_rect.y = y_val - 100
                     alien = (self.bug_alien_right, image_rect)
                     self.enemies.append(alien)
+                if col == "K":
+                    image_rect = key_door.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (key_door, image_rect)
+                    self.key_tiles.append(tile)
+                if col == "B":
+                    image_rect = key_block.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (key_block, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
 
-    def update(self, display):
+    def update(self, display, unlocked):
         self.display = display
+        self.unlocked = unlocked
         for tile in self.tile_list:
             self.display.blit(tile[0], tile[1])
         for tile in self.background_tiles:
             self.display.blit(tile[0], tile[1])
         for tile in self.all_tiles:
+            self.display.blit(tile[0], tile[1])
+        if unlocked:
+            print(unlocked)
+            for tile in self.key_tiles:
+                self.display.blit(tile[0], tile[1])
+
+    def unlock(self, display):
+        self.display = display
+        for tile in self.key_tiles:
             self.display.blit(tile[0], tile[1])
 
     def get_physical_tiles(self):
@@ -619,3 +650,6 @@ class Level:
 
     def get_enemy_list(self):
         return self.enemies
+
+    def get_keys(self):
+        return self.key_tiles

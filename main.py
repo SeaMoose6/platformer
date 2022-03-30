@@ -52,7 +52,7 @@ def game_over():
             if event.type == pygame.QUIT:
                 quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_p:
                     running = False
 
         screen.fill(BLACK)
@@ -61,7 +61,7 @@ def game_over():
         screen.blit(text, (300, 400))
         screen.blit(text_2, (560, 600))
 
-        start_text_3 = FONT.render("press SPACE to play again", True, WHITE)
+        start_text_3 = FONT.render("press \"p\" to play again", True, WHITE)
         screen.blit(start_text_3, (500, 700))
 
         pygame.display.flip()
@@ -104,6 +104,7 @@ def play():
 
     shooting = False
     bombing = False
+    unlocked = False
 
     clock = pg.time.Clock()
 
@@ -132,10 +133,11 @@ def play():
                     bomb_group.add(bomb)
 
         screen.blit(bg_image, (0, 0))
-        layout.update(screen)
+        layout.update(screen, unlocked)
         player.update(screen)
         info = player.get_info()
-        enemies = enemy.get_enemies()
+        enemies = enemy.get_enemies()[0]
+        keys = enemy.get_enemies()[1]
         enemy.update(info)
 
         if shooting:
@@ -163,7 +165,18 @@ def play():
                     big_explosion_group.add(explosion)
                     enemie[1].y += 5000
                     SCORE += 1
-
+            for key in keys:
+                if key[1].colliderect(laser.rect.x,
+                                         laser.rect.y,
+                                         laser.rect.width,
+                                         laser.rect.height):
+                    explosion = Explosion(explosion_sheet, key[1].center)
+                    laser.kill()
+                    big_explosion_group.add(explosion)
+                    key[1].y += 5000
+                    SCORE += 1
+                    unlocked = True
+                    #layout.unlock(screen)
 
         for enemie in enemies:
             if enemie[1].colliderect(player.image_rect.x,
