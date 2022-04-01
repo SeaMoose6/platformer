@@ -92,11 +92,12 @@ def play():
     big_explosion_group = pygame.sprite.Group()
     enemy_group = pygame.sprite.Group()
 
-    layout = sprites.Level(enemies)
+    layout = sprites.Level(enemies, LAYOUT)
     tile_list = layout.get_physical_tiles()
     bg_tile_list = layout.get_bg_tiles()
+    key_tiles = layout.get_keys()
     enemy_list = layout.get_enemy_list()
-    player = Player(hero, 100, 850, 50, tile_list, bg_tile_list)
+    player = Player(hero, 100, 850, 50, tile_list, bg_tile_list, key_tiles)
     player_group.add(player)
     print(player)
     enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list)
@@ -133,7 +134,7 @@ def play():
                     bomb_group.add(bomb)
 
         screen.blit(bg_image, (0, 0))
-        layout.update(screen, unlocked)
+        layout.update(screen, unlocked, player.get_info())
         player.update(screen)
         info = player.get_info()
         enemies = enemy.get_enemies()[0]

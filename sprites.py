@@ -66,12 +66,13 @@ class SpriteSheet:
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, sheet, x, y, tile_size, tile_set, bg_tile_set):
+    def __init__(self, sheet, x, y, tile_size, tile_set, bg_tile_set, key_tiles):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
         self.tile_size = tile_size
         self.tile_set = tile_set
         self.bg_tile_set = bg_tile_set
+        self.key_tiles = key_tiles
         self.nothing = self.sheet.image_at((1, 1, 5, 5,), -1)
         self.standing_right = self.sheet.image_at((15, 13, 50, 64), -1)
         self.standing_left = pg.transform.flip(self.standing_right, True, False)
@@ -88,6 +89,7 @@ class Player(pygame.sprite.Sprite):
                           self.sheet.image_at((182, 175, 51, 65), -1), self.sheet.image_at((257, 175, 51, 65), -1)]
         self.run_left = [pg.transform.flip(player, True, False) for player in self.run_right]
         self.image = self.standing_right
+        self.tile_dx = 0
         self.frame = 0
         self.frame_rate = 50
         self.previous_update = pygame.time.get_ticks()
@@ -168,11 +170,11 @@ class Player(pygame.sprite.Sprite):
             elif self.left:
                 self.image = self.standing_left
         if keys[pygame.K_SPACE] and not self.jumping and not self.falling:
-            self.velo_y = -12
+            self.velo_y = -16
             self.jumping = True
         if not keys[pygame.K_SPACE]:
             self.jumping = False
-        self.velo_y += 0.4
+        self.velo_y += 0.8
         if self.velo_y < 0:
             self.jumping = True
             self.falling = False
@@ -413,11 +415,11 @@ class Weapons(pygame.sprite.Sprite):
     def laser_update(self, right, left):
         if right:
             if self.x < self.rect.centerx < self.x+40:
-                self.velo = 10
+                self.velo = 20
                 self.image = self.laser_right
         if left:
             if self.x < self.rect.centerx < self.x + 40:
-                self.velo = -10
+                self.velo = -20
                 self.image = self.laser_left
         self.rect.x += self.velo
         self.display.blit(self.image, (self.rect.x, self.rect.y))
@@ -489,9 +491,10 @@ class Platform(pygame.sprite.Sprite):
 
 
 class Level:
-    def __init__(self, sheet):
+    def __init__(self, sheet, layout):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
+        self.layout = layout
         brick_block = pg.image.load("assets/tile116.png")
         brick_block = pg.transform.scale(brick_block, (TILE_SIZE, TILE_SIZE))
         bottom_block = pg.image.load("assets/tile094.png")
@@ -511,7 +514,7 @@ class Level:
         blue_wall = pg.image.load("assets/tile087.png")
         blue_wall = pg.transform.scale(blue_wall, (TILE_SIZE, TILE_SIZE))
         key_door = pg.image.load("assets/door_surp.png")
-        key_door = pg.transform.scale(key_door, (TILE_SIZE*2, TILE_SIZE*2))
+        self.key_door = pg.transform.scale(key_door, (TILE_SIZE*2, TILE_SIZE*2))
         key_block = pg.image.load("assets/tile125.png")
         key_block = pg.transform.scale(key_block, (TILE_SIZE, TILE_SIZE))
         self.tankbot = self.sheet.image_at((132, 0, 31, 31), -1)
@@ -525,8 +528,10 @@ class Level:
         self.all_tiles = []
         self.enemies = []
         self.key_tiles = []
+        self.exit_x = 0
+        self.exit_y = 0
 
-        for i, row in enumerate(LAYOUT):
+        for i, row in enumerate(self.layout):
             for j, col in enumerate(row):
                 x_val = j * TILE_SIZE
                 y_val = i * TILE_SIZE
@@ -607,11 +612,13 @@ class Level:
                     alien = (self.bug_alien_right, image_rect)
                     self.enemies.append(alien)
                 if col == "K":
-                    image_rect = key_door.get_rect()
-                    image_rect.x = x_val
-                    image_rect.y = y_val
-                    tile = (key_door, image_rect)
-                    self.key_tiles.append(tile)
+                    # image_rect = key_door.get_rect()
+                    # image_rect.x = x_val
+                    # image_rect.y = y_val
+                    # tile = (key_door, image_rect)
+                    # self.key_tiles.append(tile)
+                    self.exit_x = x_val
+                    self.exit_y = y_val
                 if col == "B":
                     image_rect = key_block.get_rect()
                     image_rect.x = x_val
@@ -620,19 +627,28 @@ class Level:
                     self.tile_list.append(tile)
                     self.all_tiles.append(tile)
 
-    def update(self, display, unlocked):
+    def update(self, display, unlocked, player_info):
         self.display = display
         self.unlocked = unlocked
+        x_change = player_info[7]
+        self.exit_x += x_change
+        if unlocked:
+            x_change = 0
+            print(self.exit_x, self.exit_y)
+            image_rect = self.key_door.get_rect()
+            image_rect.x = self.exit_x
+            image_rect.y = self.exit_y
+            display.blit(self.key_door, image_rect)
+            door = (self.key_door, image_rect)
+            self.key_tiles.append(door)
+
         for tile in self.tile_list:
             self.display.blit(tile[0], tile[1])
         for tile in self.background_tiles:
             self.display.blit(tile[0], tile[1])
         for tile in self.all_tiles:
             self.display.blit(tile[0], tile[1])
-        if unlocked:
-            print(unlocked)
-            for tile in self.key_tiles:
-                self.display.blit(tile[0], tile[1])
+
 
     def unlock(self, display):
         self.display = display
