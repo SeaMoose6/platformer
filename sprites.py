@@ -627,6 +627,7 @@ class Level:
                     self.tile_list.append(tile)
                     self.all_tiles.append(tile)
 
+
     def update(self, display, unlocked, player_info):
         self.display = display
         self.unlocked = unlocked

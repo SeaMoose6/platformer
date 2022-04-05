@@ -69,9 +69,13 @@ def game_over():
 def play():
 
     global SCORE
+    global switching_level
 
     bg_image = pg.image.load("assets/sci_fi_bg1.jpg")
     bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
+    if switching_level:
+        bg_image = pg.image.load("assets/rocky-nowater-demo.png")
+        bg_image = pg.transform.scale(bg_image, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
     screen = pg.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
     pg.display.set_caption("Gunner Game")
@@ -92,7 +96,16 @@ def play():
     big_explosion_group = pygame.sprite.Group()
     enemy_group = pygame.sprite.Group()
 
-    layout = sprites.Level(enemies, LAYOUT)
+    unlocked = False
+    level_count = 0
+    if switching_level:
+        level_count = 1
+    def set_layout(levels):
+        level = sprites.Level(enemies, levels[level_count])
+        return level
+
+    layout = set_layout(levels)
+
     tile_list = layout.get_physical_tiles()
     bg_tile_list = layout.get_bg_tiles()
     key_tiles = layout.get_keys()
@@ -105,7 +118,7 @@ def play():
 
     shooting = False
     bombing = False
-    unlocked = False
+
 
     clock = pg.time.Clock()
 
@@ -216,6 +229,16 @@ def play():
                     big_explosion_group.add(explosion)
                     enemie[1].y += 5000
 
+        for key in layout.get_keys():
+            if key[1].colliderect(player.image_rect.x,
+                                     player.image_rect.y,
+                                     player.image_rect.width,
+                                     player.image_rect.height):
+                level_count = 1
+                switching_level = True
+
+                playing = False
+
         explosion_group.draw(screen)
         big_explosion_group.draw(screen)
         explosion_group.update(1)
@@ -224,8 +247,12 @@ def play():
 
         clock.tick(FPS)
 
+
+
 start_screen()
 
+if switching_level:
+    play()
 while True:
     play()
     game_over()
