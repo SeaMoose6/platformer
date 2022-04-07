@@ -517,6 +517,14 @@ class Level:
         self.key_door = pg.transform.scale(key_door, (TILE_SIZE*2, TILE_SIZE*2))
         key_block = pg.image.load("assets/tile125.png")
         key_block = pg.transform.scale(key_block, (TILE_SIZE, TILE_SIZE))
+        desert_floor = pg.image.load("assets/tile089.png")
+        desert_floor = pg.transform.scale(desert_floor, (TILE_SIZE, TILE_SIZE))
+        desert_tile = pg.image.load("assets/tile106.png")
+        desert_tile = pg.transform.scale(desert_tile, (TILE_SIZE, TILE_SIZE))
+        desert_block = pg.image.load("assets/tile091.png")
+        desert_block = pg.transform.scale(desert_block, (TILE_SIZE, TILE_SIZE))
+        sand_block = pg.image.load("assets/tile092.png")
+        sand_block = pg.transform.scale(sand_block, (TILE_SIZE, TILE_SIZE))
         self.tankbot = self.sheet.image_at((132, 0, 31, 31), -1)
         self.tankbot_right = pg.transform.scale2x(self.tankbot)
         self.tankbot_left = pg.transform.flip(self.tankbot_right, True, False)
@@ -626,7 +634,34 @@ class Level:
                     tile = (key_block, image_rect)
                     self.tile_list.append(tile)
                     self.all_tiles.append(tile)
-
+                if col == "a":
+                    image_rect = desert_tile.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (desert_tile, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
+                if col == "b":
+                    image_rect = desert_floor.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (desert_floor, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
+                if col == "c":
+                    image_rect = desert_block.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (desert_block, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
+                if col == "d":
+                    image_rect = sand_block.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (sand_block, image_rect)
+                    self.tile_list.append(tile)
+                    self.all_tiles.append(tile)
 
     def update(self, display, unlocked, player_info):
         self.display = display
