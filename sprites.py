@@ -256,7 +256,7 @@ class Player(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, display, enemy_list):
+    def __init__(self, sheet, tile_size, tile_set, bg_tile_set, display, enemy_list, enemy_list_2):
         pygame.sprite.Sprite.__init__(self)
         self.sheet = sheet
         self.tile_size = tile_size
@@ -283,6 +283,11 @@ class Enemy(pygame.sprite.Sprite):
         self.bug_rect_3 = self.enemy_list[5][1]
         self.bugs = [self.bug_rect]
 
+        self.enemy_list_2 = enemy_list_2
+        self.flying_robot = self.sheet.image_at((132, 99, 31, 31), -1)
+        self.flying_robot_right = pg.transform.scale2x(self.flying_robot)
+        self.flying_robot_left = pg.transform.flip(self.flying_robot, True, False)
+
         self.x_loc = self.image_rect.x
         self.x_loc_2 = self.image_rect_2.x
         self.x_loc_3 = self.image_rect_3.x
@@ -296,6 +301,8 @@ class Enemy(pygame.sprite.Sprite):
         self.dy = 3
         self.bug_dx = 10
         self.bug_dy = 3
+        self.bot_dx = 5
+        self.bot_dy = 5
 
     def update(self, player_info):
         screen_dx = 0
@@ -328,6 +335,19 @@ class Enemy(pygame.sprite.Sprite):
                                        bug.width,
                                        bug.height):
                     self.bug_dy = 0
+        for enemy in self.enemy_list_2:
+            for tile in self.tile_set:
+                if tile[1].colliderect(enemy[1].x + self.bug_dx,
+                                       enemy[1].y,
+                                       enemy[1].width,
+                                       enemy[1].height):
+                    self.bot_dx *= -1
+                if tile[1].colliderect(enemy[1].x,
+                                       enemy[1].y + self.bug_dy * 10,
+                                       enemy[1].width,
+                                       enemy[1].height):
+                    self.bug_dy *= -1
+
 
         if self.right:
             if self.image_rect.x <= self.x_loc+360:
@@ -382,6 +402,11 @@ class Enemy(pygame.sprite.Sprite):
                 pass
             else:
                 self.display.blit(self.image_2, bug)
+        for enemy in self.enemy_list_2:
+            enemy[1].x += screen_dx
+            enemy[1].x += self.bot_dx
+            enemy[1].x += self.bot_dy
+            self.display.blit(self.flying_robot_right, enemy[1])
 
     def get_enemies(self):
         return self.enemies, self.key
@@ -531,11 +556,15 @@ class Level:
         self.bug_alien = self.sheet.image_at((99, 99, 31, 31), -1)
         self.bug_alien_right = pg.transform.scale2x(self.bug_alien)
         self.bug_alien_left = pg.transform.flip(self.bug_alien_right, True, False)
+        self.flying_robot = self.sheet.image_at((132, 99, 31, 31), -1)
+        self.flying_robot_right = pg.transform.scale2x(self.flying_robot)
+        self.flying_robot_left = pg.transform.flip(self.flying_robot, True, False)
         self.tile_list = []
         self.background_tiles = []
         self.all_tiles = []
         self.enemies = []
         self.key_tiles = []
+        self.level_2_enemies = []
         self.exit_x = 0
         self.exit_y = 0
 
@@ -662,6 +691,12 @@ class Level:
                     tile = (sand_block, image_rect)
                     self.tile_list.append(tile)
                     self.all_tiles.append(tile)
+                if col == "F":
+                    image_rect = self.flying_robot_right.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val - 12
+                    enemy = (self.flying_robot_right, image_rect)
+                    self.level_2_enemies.append(enemy)
 
     def update(self, display, unlocked, player_info):
         self.display = display
@@ -705,3 +740,6 @@ class Level:
 
     def get_keys(self):
         return self.key_tiles
+
+    def get_enemy_list_2(self):
+        return self.level_2_enemies

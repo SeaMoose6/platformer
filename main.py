@@ -86,7 +86,6 @@ def play():
     villain = sprites.SpriteSheet("assets/xeonsheetsupah_0.bmp")
     explosion_sheet = sprites.SpriteSheet("assets/explosion.png")
     enemies = sprites.SpriteSheet("assets/ScifiCritters4 - Copy.PNG")
-    print(enemies)
 
     player_group = pygame.sprite.Group()
     platform_group = pygame.sprite.Group()
@@ -95,6 +94,7 @@ def play():
     explosion_group = pygame.sprite.Group()
     big_explosion_group = pygame.sprite.Group()
     enemy_group = pygame.sprite.Group()
+    block_group = pygame.sprite.Group()
 
     unlocked = False
     level_count = 0
@@ -106,14 +106,17 @@ def play():
 
     layout = set_layout(levels)
 
+
     tile_list = layout.get_physical_tiles()
+    print(tile_list)
     bg_tile_list = layout.get_bg_tiles()
     key_tiles = layout.get_keys()
     enemy_list = layout.get_enemy_list()
+    enemy_list_2 = layout.get_enemy_list_2()
     player = Player(hero, 100, 850, 50, tile_list, bg_tile_list, key_tiles)
     player_group.add(player)
-    print(player)
-    enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list)
+    #print(player)
+    enemy = Enemy(enemies, 50, tile_list, bg_tile_list, screen, enemy_list, enemy_list_2)
     enemy_group.add(enemy)
 
     shooting = False
@@ -153,6 +156,8 @@ def play():
         enemies = enemy.get_enemies()[0]
         keys = enemy.get_enemies()[1]
         enemy.update(info)
+
+
 
         if shooting:
             for laser in missile_group:
