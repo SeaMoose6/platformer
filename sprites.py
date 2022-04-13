@@ -337,16 +337,19 @@ class Enemy(pygame.sprite.Sprite):
                     self.bug_dy = 0
         for enemy in self.enemy_list_2:
             for tile in self.tile_set:
-                if tile[1].colliderect(enemy[1].x + self.bug_dx,
-                                       enemy[1].y,
-                                       enemy[1].width,
-                                       enemy[1].height):
-                    self.bot_dx *= -1
-                if tile[1].colliderect(enemy[1].x,
-                                       enemy[1].y + self.bug_dy * 10,
-                                       enemy[1].width,
-                                       enemy[1].height):
-                    self.bug_dy *= -1
+                print(enemy[0][1], enemy[1])
+                if tile[1].colliderect(enemy[0][1].x + enemy[1],
+                                       enemy[0][1].y,
+                                       enemy[0][1].width,
+                                       enemy[0][1].height):
+                    enemy[1] *= -1
+                    print("collided", enemy[1])
+                if tile[1].colliderect(enemy[0][1].x,
+                                       enemy[0][1].y + self.bot_dy,
+                                       enemy[0][1].width,
+                                       enemy[0][1].height):
+                    self.bot_dy *= -1
+                    print("collided", self.bot_dy)
 
 
         if self.right:
@@ -403,10 +406,10 @@ class Enemy(pygame.sprite.Sprite):
             else:
                 self.display.blit(self.image_2, bug)
         for enemy in self.enemy_list_2:
-            enemy[1].x += screen_dx
-            enemy[1].x += self.bot_dx
-            enemy[1].x += self.bot_dy
-            self.display.blit(self.flying_robot_right, enemy[1])
+            enemy[0][1].x += screen_dx
+            enemy[0][1].x += enemy[1]
+            enemy[0][1].x += self.bot_dy
+            self.display.blit(self.flying_robot_right, enemy[0][1])
 
     def get_enemies(self):
         return self.enemies, self.key
@@ -696,7 +699,8 @@ class Level:
                     image_rect.x = x_val
                     image_rect.y = y_val - 12
                     enemy = (self.flying_robot_right, image_rect)
-                    self.level_2_enemies.append(enemy)
+                    x_change = 5
+                    self.level_2_enemies.append([enemy, x_change])
 
     def update(self, display, unlocked, player_info):
         self.display = display
@@ -705,7 +709,7 @@ class Level:
         self.exit_x += x_change
         if unlocked:
             x_change = 0
-            print(self.exit_x, self.exit_y)
+            #print(self.exit_x, self.exit_y)
             image_rect = self.key_door.get_rect()
             image_rect.x = self.exit_x
             image_rect.y = self.exit_y
