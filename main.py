@@ -97,9 +97,9 @@ def play():
     block_group = pygame.sprite.Group()
 
     unlocked = False
-    level_count = 0
+    level_count = 1
     if switching_level:
-        level_count = 1
+        level_count = 0
     def set_layout(levels):
         level = sprites.Level(enemies, levels[level_count])
         return level
@@ -196,6 +196,13 @@ def play():
                     SCORE += 1
                     unlocked = True
                     #layout.unlock(screen)
+            # for enemy in enemy_list_2:
+            #     if enemy[0][1].colliderect(laser.rect.x,
+            #                              laser.rect.y,
+            #                              laser.rect.width,
+            #                              laser.rect.height):
+            #         laser.kill()
+            #         enemy[0][1].y += 5000
 
         for enemie in enemies:
             if enemie[1].colliderect(player.image_rect.x,

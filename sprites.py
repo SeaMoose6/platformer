@@ -335,9 +335,11 @@ class Enemy(pygame.sprite.Sprite):
                                        bug.width,
                                        bug.height):
                     self.bug_dy = 0
+
         for enemy in self.enemy_list_2:
+            #print(self.enemy_list_2)
             for tile in self.tile_set:
-                print(enemy[0][1], enemy[1])
+                #print(enemy[0][1], enemy[1])
                 if tile[1].colliderect(enemy[0][1].x + enemy[1],
                                        enemy[0][1].y,
                                        enemy[0][1].width,
@@ -345,10 +347,10 @@ class Enemy(pygame.sprite.Sprite):
                     enemy[1] *= -1
                     print("collided", enemy[1])
                 if tile[1].colliderect(enemy[0][1].x,
-                                       enemy[0][1].y + self.bot_dy,
+                                       enemy[0][1].y + enemy[2],
                                        enemy[0][1].width,
                                        enemy[0][1].height):
-                    self.bot_dy *= -1
+                    enemy[2] *= -1
                     print("collided", self.bot_dy)
 
 
@@ -408,7 +410,7 @@ class Enemy(pygame.sprite.Sprite):
         for enemy in self.enemy_list_2:
             enemy[0][1].x += screen_dx
             enemy[0][1].x += enemy[1]
-            enemy[0][1].x += self.bot_dy
+            enemy[0][1].y += enemy[2]
             self.display.blit(self.flying_robot_right, enemy[0][1])
 
     def get_enemies(self):
@@ -700,7 +702,8 @@ class Level:
                     image_rect.y = y_val - 12
                     enemy = (self.flying_robot_right, image_rect)
                     x_change = 5
-                    self.level_2_enemies.append([enemy, x_change])
+                    y_change = 5
+                    self.level_2_enemies.append([enemy, x_change, y_change])
 
     def update(self, display, unlocked, player_info):
         self.display = display
