@@ -97,9 +97,9 @@ def play():
     block_group = pygame.sprite.Group()
 
     unlocked = False
-    level_count = 1
+    level_count = 0
     if switching_level:
-        level_count = 0
+        level_count = 1
     def set_layout(levels):
         level = sprites.Level(enemies, levels[level_count])
         return level
@@ -155,6 +155,7 @@ def play():
         info = player.get_info()
         enemies = enemy.get_enemies()[0]
         keys = enemy.get_enemies()[1]
+
         enemy.update(info)
 
 
@@ -195,8 +196,7 @@ def play():
                     key[1].y += 5000
                     SCORE += 1
                     unlocked = True
-                    #layout.unlock(screen)
-            # for enemy in enemy_list_2:
+            # for enemy in bots:
             #     if enemy[0][1].colliderect(laser.rect.x,
             #                              laser.rect.y,
             #                              laser.rect.width,
